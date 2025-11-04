@@ -1,4 +1,4 @@
-#include <arch/bsp/uart.h>
+//#include <arch/bsp/uart.h>
 #include <stddef.h>
 #include <stdarg.h>
 
