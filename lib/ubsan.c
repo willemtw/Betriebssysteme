@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <arch/bsp/yellow_led.h>
 #include <config.h>
+#include <lib/kprintf.h>
 
 #define halt()                      \
 	do {                        \
@@ -10,24 +11,6 @@
 			asm("wfi"); \
 		}                   \
 	} while (0)
-
-void kprintf [[gnu::format(printf, 1, 2)]] (const char *format, ...);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsuggest-attribute=noreturn"
-void kprintf [[gnu::weak, gnu::format(printf, 1, 2)]] (const char *, ...)
-{
-	init_yellow();
-	while (true) {
-		for (volatile unsigned int i = 0; i < BUSY_WAIT_COUNTER; i++) {
-		}
-		yellow_on();
-		for (volatile unsigned int i = 0; i < BUSY_WAIT_COUNTER; i++) {
-		}
-		yellow_off();
-	}
-}
-#pragma GCC diagnostic pop
 
 // structs copyed form the linux kernel
 // https://github.com/torvalds/linux/blob/master/lib/ubsan.h
