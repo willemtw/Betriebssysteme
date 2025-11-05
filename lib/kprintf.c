@@ -8,7 +8,7 @@ static void print_in_base(unsigned int value, int base, int width, char pad)
 	int  i = 0;
 	do {
 		unsigned int digit = value % base;
-		buffer[i++]	   = (digit < 10) ? '0' + digit : 'A' + digit - 10;
+		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
 		value /= base;
 	} while (value > 0);
 
