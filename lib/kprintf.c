@@ -2,19 +2,32 @@
 #include <arch/bsp/uart.h>
 #include <stdarg.h>
 
-static void print_in_base(unsigned int value, int base, int width, char pad)
+static void print_in_base(int value, int base, int width, char pad)
 {
 	char buffer[16];
-	int  i = 0;
+	int  i		 = 0;
+	int  is_negative = value < 0;
+	int  abs	 = is_negative ? -value : value;
 	do {
-		unsigned int digit = value % base;
+		unsigned int digit = abs % base;
 		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
-		value /= base;
-	} while (value > 0);
+		abs /= base;
+	} while (abs > 0);
 
-	while (i < width) {
+	int padding_needed = i >= width ? 0 : (width - i - is_negative);
+
+	if (is_negative && pad == ' ') {
+		buffer[i++] = '-';
+	}
+
+	for (int j = 0; j < padding_needed; j++) {
 		buffer[i++] = pad;
 	}
+
+	if (is_negative && pad == '0') {
+		buffer[i++] = '-';
+	}
+
 	while (i > 0) {
 		uart_putc(buffer[--i]);
 	}
@@ -114,10 +127,6 @@ void kprintf(const char *format, ...)
 		}
 		case 'i': {
 			int val = va_arg(args, int);
-			if (val < 0) {
-				uart_putc('-');
-				val = -val;
-			}
 			print_in_base(val, 10, width, pad);
 			break;
 		}
