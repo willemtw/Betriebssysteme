@@ -7,7 +7,7 @@ static void print_in_base(int value, int base, int width, char pad)
 	char buffer[16];
 	int  i		 = 0;
 	int  is_negative = value < 0;
-	int  abs	 = is_negative ? -value : value;
+	unsigned int abs = is_negative ? (0u - (unsigned int)value) : (unsigned int)value;
 	do {
 		unsigned int digit = abs % base;
 		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
