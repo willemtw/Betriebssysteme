@@ -1,6 +1,7 @@
 #ifndef UART_H
 #define UART_H
 #include <stddef.h>
+#include <stdint.h>
 
 struct uart_t {
 	unsigned int dr;
@@ -16,9 +17,9 @@ struct uart_t {
 	unsigned int imsc;
 };
 
-static constexpr unsigned int UART_BASE = 0x7E201000 - 0x3F000000;
+#define UART_BASE (uint32_t)(0x7E201000 - 0x3F000000)
 
-static volatile struct uart_t *UART = (volatile struct uart_t *)UART_BASE;
+#define UART ((volatile struct uart_t *)UART_BASE)
 
 #define UART_FR_TXFF (1 << 5)
 #define UART_FR_RXFE (1 << 4)
