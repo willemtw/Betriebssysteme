@@ -2,22 +2,23 @@
 #include <arch/bsp/uart.h>
 #include <stdarg.h>
 
-static int convert_to_base_string(unsigned int value, int base, char* buffer) {
-	int  i		 = 0;
+static int convert_to_base_string(unsigned int value, int base, char *buffer)
+{
+	int i = 0;
 	do {
 		unsigned int digit = value % base;
 		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
 		value /= base;
 	} while (value > 0);
-  return i;
+	return i;
 }
 
 static void print_in_base_signed(int value, int base, int width, char pad)
 {
-	char buffer[16];
-	int  is_negative = value < 0;
-	unsigned int abs = is_negative ? (0u - (unsigned int)value) : (unsigned int)value;
-  int i = convert_to_base_string(abs, base, buffer);
+	char	     buffer[16];
+	int	     is_negative = value < 0;
+	unsigned int abs	 = is_negative ? (0u - (unsigned int)value) : (unsigned int)value;
+	int	     i		 = convert_to_base_string(abs, base, buffer);
 
 	int padding_needed = i >= width ? 0 : (width - i - is_negative);
 
@@ -42,7 +43,7 @@ static void print_in_base_unsigned(unsigned int value, int base, int width, char
 {
 	char buffer[16];
 
-  int i = convert_to_base_string(value, base, buffer);
+	int i = convert_to_base_string(value, base, buffer);
 
 	int padding_needed = i >= width ? 0 : (width - i);
 
