@@ -2,6 +2,7 @@
 #include <arch/bsp/uart.h>
 #include <lib/kprintf.h>
 #include <config.h>
+#include <limits.h>
 
 void start_kernel [[noreturn]] (void);
 void start_kernel [[noreturn]] (void)

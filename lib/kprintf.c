@@ -2,17 +2,28 @@
 #include <arch/bsp/uart.h>
 #include <stdarg.h>
 
-static void print_in_base(int value, int base, int width, char pad)
+static int convert_to_base_string(unsigned int value, int base, char* buffer) {
+	int  i		 = 0;
+	do {
+		unsigned int digit = value % base;
+		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
+		value /= base;
+	} while (value > 0);
+  return i;
+}
+
+static void print_in_base_signed(int value, int base, int width, char pad)
 {
 	char buffer[16];
-	int  i		 = 0;
 	int  is_negative = value < 0;
 	unsigned int abs = is_negative ? (0u - (unsigned int)value) : (unsigned int)value;
-	do {
+  int i = convert_to_base_string(abs, base, buffer);
+
+	/*do {
 		unsigned int digit = abs % base;
 		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
 		abs /= base;
-	} while (abs > 0);
+	} while (abs > 0); */
 
 	int padding_needed = i >= width ? 0 : (width - i - is_negative);
 
@@ -26,6 +37,23 @@ static void print_in_base(int value, int base, int width, char pad)
 
 	if (is_negative && pad == '0') {
 		buffer[i++] = '-';
+	}
+
+	while (i > 0) {
+		uart_putc(buffer[--i]);
+	}
+}
+
+static void print_in_base_unsigned(unsigned int value, int base, int width, char pad)
+{
+	char buffer[16];
+
+  int i = convert_to_base_string(value, base, buffer);
+
+	int padding_needed = i >= width ? 0 : (width - i);
+
+	for (int j = 0; j < padding_needed; j++) {
+		buffer[i++] = pad;
 	}
 
 	while (i > 0) {
@@ -127,17 +155,17 @@ void kprintf(const char *format, ...)
 		}
 		case 'i': {
 			int val = va_arg(args, int);
-			print_in_base(val, 10, width, pad);
+			print_in_base_signed(val, 10, width, pad);
 			break;
 		}
 		case 'u': {
 			unsigned int val = va_arg(args, unsigned int);
-			print_in_base(val, 10, width, pad);
+			print_in_base_unsigned(val, 10, width, pad);
 			break;
 		}
 		case 'x': {
 			unsigned int val = va_arg(args, unsigned int);
-			print_in_base(val, 16, width, pad);
+			print_in_base_unsigned(val, 16, width, pad);
 			break;
 		}
 		case 'p': {
@@ -146,7 +174,7 @@ void kprintf(const char *format, ...)
 			width		 = 8;
 			pad		 = '0';
 			unsigned int val = va_arg(args, unsigned int);
-			print_in_base(val, 16, width, pad);
+			print_in_base_unsigned(val, 16, width, pad);
 			break;
 		}
 		case '%': {
