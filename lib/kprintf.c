@@ -19,12 +19,6 @@ static void print_in_base_signed(int value, int base, int width, char pad)
 	unsigned int abs = is_negative ? (0u - (unsigned int)value) : (unsigned int)value;
   int i = convert_to_base_string(abs, base, buffer);
 
-	/*do {
-		unsigned int digit = abs % base;
-		buffer[i++]	   = (digit < 10) ? '0' + digit : 'a' + digit - 10;
-		abs /= base;
-	} while (abs > 0); */
-
 	int padding_needed = i >= width ? 0 : (width - i - is_negative);
 
 	if (is_negative && pad == ' ') {
