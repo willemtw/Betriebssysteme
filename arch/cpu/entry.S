@@ -1,6 +1,15 @@
 
 .section .init
 
+/* Processor modes */
+.equ MODE_USR, 0x10
+.equ MODE_FIQ, 0x11
+.equ MODE_IRQ, 0x12
+.equ MODE_SVC, 0x13
+.equ MODE_ABT, 0x17
+.equ MODE_UND, 0x1B
+.equ MODE_SYS, 0x1F
+
 .global _start
 _start:
 	/* Erkennen ob Hypervisor Mode aktiv */
@@ -35,8 +44,27 @@ _enableAlignCheck:
 
 
 _bsprak:
-	/* Validen Stack Pointer setzten */
-	ldr sp,=0x100000
+	/* Stack pointer setup */
+	cpsid if
+
+	ldr sp, =fiq_stack_top
+	cps #MODE_FIQ
+
+	ldr sp, =irq_stack_top
+	cps #MODE_IRQ
+
+	ldr sp, =abt_stack_top
+	cps #MODE_ABT
+
+	ldr sp, =und_stack_top
+	cps #MODE_UND
+
+	ldr sp, =sys_stack_top
+	cps #MODE_SYS
+
+	ldr sp, =svc_stack_top
+	cps #MODE_SVC
+
 	/* Zu c Code springen */
 	bl  start_kernel
 .Lend:
