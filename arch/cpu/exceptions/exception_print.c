@@ -39,7 +39,7 @@ void print_exception_infos(const char *exception_name, bool is_data_abort, bool 
 
 	uint32_t exception_source_addr = frame->lr;
 	uint32_t cpsr		       = read_cpsr().r;
-	uint32_t svc_spsr	       = read_spsr().r;
+	uint32_t svc_spsr	       = read_spsr_mode(CPU_MODE_SVC).r;
 	uint32_t irq_spsr	       = read_spsr_mode(CPU_MODE_IRQ).r;
 	uint32_t abt_spsr	       = read_spsr_mode(CPU_MODE_ABT).r;
 	uint32_t und_spsr	       = read_spsr_mode(CPU_MODE_UND).r;

@@ -1,7 +1,9 @@
 #include <stdint.h>
+
 void do_supervisor_call(void)
 {
-	asm volatile("svc 1");
+	// If we're in SV mode already, lr will be overwritten by svc
+	asm volatile("svc 1" ::: "lr");
 }
 
 void do_prefetch_abort(void)
