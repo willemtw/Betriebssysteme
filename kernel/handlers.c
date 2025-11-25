@@ -8,7 +8,7 @@
 void handle_irq(void *sp)
 {
 	(void)sp;
-	kprintf("irq\n");
+	// kprintf("irq\n");
 	systick_handle_irq();
 }
 

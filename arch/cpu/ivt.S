@@ -17,54 +17,60 @@ _ivt:
 
 _svc_handler:
   /* Decrement LR due to pipelining */
-  /* sub lr, lr, #4 */
+  sub lr, lr, #4
   push {r0-r12, lr}
   mov r0, sp
   bl handle_svc
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr
 
 _undef_handler:
   /* Decrement LR due to pipelining */
-  /* sub lr, lr, #4 */
+  sub lr, lr, #4
   push {r0-r12, lr}
   mov r0, sp
   bl handle_undefined_instruction
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr
 
 _prefetch_abort_handler:
   /* Decrement LR due to pipelining */
-  /* sub lr, lr, #4 */
+  sub lr, lr, #4
   push {r0-r12, lr}
   mov r0, sp
   bl handle_prefetch_abort
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr
 
 _data_abort_handler:
   /* Decrement LR due to pipelining */
-  sub lr, lr, #4
+  sub lr, lr, #8
   push {r0-r12, lr}
   mov r0, sp
   bl handle_data_abort
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr
 
 _irq_handler:
   /* Decrement LR due to pipelining */
-  sub lr, lr, #4
+  sub lr, lr, #8
   push {r0-r12, lr}
   mov r0, sp
   bl handle_irq
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr
 
 _fiq_handler:
   /* Decrement LR due to pipelining */
-  sub lr, lr, #4
+  sub lr, lr, #8
   push {r0-r12, lr}
   mov r0, sp
   bl handle_fiq
   pop {r0-r12, lr}
+  add lr, lr, #4
   movs pc, lr

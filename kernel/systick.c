@@ -5,18 +5,18 @@
 
 void systick_init(void)
 {
-	interrupt_controller_enable_irq(SYSTEM_TIMER_C0_IRQ);
-	system_timer_set_interval(TIMER_C0, TIMER_INTERVAL);
+	interrupt_controller_enable_irq(SYSTEM_TIMER_C1_IRQ);
+	system_timer_set_interval(TIMER_C1, TIMER_INTERVAL);
 }
 
 void systick_handle_irq(void)
 {
-	if (!interrupt_controller_check_pending(SYSTEM_TIMER_C0_IRQ) ||
-	    !system_timer_check_compare(TIMER_C0)) {
+	if (!interrupt_controller_check_pending(SYSTEM_TIMER_C1_IRQ) ||
+	    !system_timer_check_compare(TIMER_C1)) {
 		return;
 	}
-	system_timer_clear_interrupt(TIMER_C0);
-	system_timer_update_compare(TIMER_C0, TIMER_INTERVAL);
+	system_timer_clear_interrupt(TIMER_C1);
+	system_timer_update_compare(TIMER_C1, TIMER_INTERVAL);
 
-	kprintf("!\n");
+	kprintf("!");
 }
