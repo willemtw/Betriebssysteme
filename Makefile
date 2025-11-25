@@ -70,7 +70,27 @@
 BIN_LSG = 
 
 # Hier eure source files hinzufügen
-SRC = arch/cpu/entry.S arch/cpu/ivt.S arch/cpu/stack.c arch/cpu/interrupts.c kernel/start.c arch/bsp/yellow_led.c lib/ubsan.c lib/mem.c arch/bsp/uart.c lib/kprintf.c arch/bsp/gpio.c
+SRC = \
+	arch/cpu/entry.S \
+	arch/cpu/ivt.S \
+	arch/cpu/regcheck.c \
+	arch/cpu/modes.c \
+	arch/bsp/interrupt_controller.c \
+	kernel/systick.c \
+	arch/cpu/regcheck_asm.S \
+	arch/cpu/stack.c \
+	arch/cpu/interrupts.c \
+	arch/cpu/registers.c \
+	arch/cpu/exception_print.c \
+	kernel/start.c \
+	kernel/handlers.c \
+	arch/bsp/yellow_led.c \
+	lib/ubsan.c \
+	lib/mem.c \
+	arch/bsp/uart.c \
+	lib/kprintf.c \
+	arch/bsp/gpio.c \
+	arch/bsp/system_timer.c
 
 # Hier separate user source files hinzufügen
 USRC = user/main.c
@@ -278,6 +298,9 @@ debug_replay: gdb_window qemu_debug_replay
 format:
 	@$(FORMAT) $(FORMATFLAGS) $$(find . -name '*.c' -o -name '*.h')
 	@echo "Finished reformatting code."
+
+lsp: clean
+	bear -- $(MAKE) all
 
 clean:
 	rm -rf $(BUILD_DIR)

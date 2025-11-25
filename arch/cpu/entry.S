@@ -47,23 +47,23 @@ _bsprak:
 	/* Stack pointer setup */
 	cpsid if
 
-	ldr sp, =fiq_stack_top
 	cps #MODE_FIQ
+	ldr sp, =fiq_stack_top
 
-	ldr sp, =irq_stack_top
 	cps #MODE_IRQ
+	ldr sp, =irq_stack_top
 
-	ldr sp, =abt_stack_top
 	cps #MODE_ABT
+	ldr sp, =abt_stack_top
 
-	ldr sp, =und_stack_top
 	cps #MODE_UND
+	ldr sp, =und_stack_top
 
-	ldr sp, =sys_stack_top
 	cps #MODE_SYS
+	ldr sp, =sys_stack_top
 
-	ldr sp, =svc_stack_top
 	cps #MODE_SVC
+	ldr sp, =svc_stack_top
 
 	/* Zu c Code springen */
 	bl  start_kernel

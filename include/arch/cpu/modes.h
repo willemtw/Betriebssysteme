@@ -1,0 +1,24 @@
+#ifndef MODES_H
+#define MODES_H
+
+#define CPU_MODE_USR_RAW 0x10
+#define CPU_MODE_FIQ_RAW 0x11
+#define CPU_MODE_IRQ_RAW 0x12
+#define CPU_MODE_SVC_RAW 0x13
+#define CPU_MODE_ABT_RAW 0x17
+#define CPU_MODE_UND_RAW 0x1B
+#define CPU_MODE_SYS_RAW 0x1F
+
+enum cpu_mode {
+	CPU_MODE_USR = CPU_MODE_USR_RAW,
+	CPU_MODE_FIQ = CPU_MODE_FIQ_RAW,
+	CPU_MODE_IRQ = CPU_MODE_IRQ_RAW,
+	CPU_MODE_SVC = CPU_MODE_SVC_RAW,
+	CPU_MODE_ABT = CPU_MODE_ABT_RAW,
+	CPU_MODE_UND = CPU_MODE_UND_RAW,
+	CPU_MODE_SYS = CPU_MODE_SYS_RAW,
+};
+
+const char *get_mode_name(enum cpu_mode mode);
+
+#endif // MODES_H

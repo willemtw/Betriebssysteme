@@ -1,6 +1,7 @@
 #include <lib/kprintf.h>
 #include <arch/bsp/uart.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 static int convert_to_base_string(unsigned int value, int base, char *buffer)
 {

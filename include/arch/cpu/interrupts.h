@@ -1,18 +1,30 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+#include <stdint.h>
+
+struct exception_stack_frame {
+	uint32_t r0;
+	uint32_t r1;
+	uint32_t r2;
+	uint32_t r3;
+	uint32_t r4;
+	uint32_t r5;
+	uint32_t r6;
+	uint32_t r7;
+	uint32_t r8;
+	uint32_t r9;
+	uint32_t r10;
+	uint32_t r11;
+	uint32_t r12;
+	uint32_t lr;
+};
+
 void setup_interrupts(void);
 
-void handle_irq(void *sp);
+static inline void svc_call(uint32_t number)
+{
+	asm volatile("svc %0" : : "i"(number));
+}
 
-void handle_fiq(void *sp);
-
-void handle_undefined_instruction(void *sp);
-
-void handle_svc(void *sp);
-
-void handle_prefetch_abort(void *sp);
-
-void handle_data_abort(void *sp);
-
-#endif
+#endif // INTERRUPTS_H
