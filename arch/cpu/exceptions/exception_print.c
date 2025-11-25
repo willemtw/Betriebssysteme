@@ -22,6 +22,12 @@ struct mode_regs {
 	uint32_t supervisor_sp;
 };
 
+// Even though they are the same thing on this platform, we will get warnings if we don't
+// cast uint32_t to "unsigned int" all over this file because uint32_t is defined as
+// "long unsigned int" and the format specifier for that type is "%lx" which our kprintf
+// doesn't support.
+static_assert(sizeof(uint32_t) == sizeof(unsigned int));
+
 static const char      *get_fsr_description(unsigned int fsr);
 static void		print_psr(struct psr psr);
 static struct mode_regs read_mode_specific_registers(void);
@@ -39,49 +45,53 @@ void print_exception_infos(const char *exception_name, bool is_data_abort, bool 
 	uint32_t und_spsr	       = read_spsr_mode(CPU_MODE_UND).r;
 
 	kprintf("############ EXCEPTION ############\n");
-	kprintf("%s an Adresse: 0x%08x\n", exception_name, exception_source_addr);
+	kprintf("%s an Adresse: 0x%08x\n", exception_name, (unsigned int)exception_source_addr);
 
 	if (is_data_abort) {
 		uint32_t    dfsr	     = read_dfsr();
 		uint32_t    dfar	     = read_dfar();
 		const char *dfsr_description = get_fsr_description(dfsr);
-		kprintf("Data Fault Status Register: 0x%08x -> %s\n", dfsr, dfsr_description);
-		kprintf("Data Fault Adress Register: 0x%08x\n", dfar);
+		kprintf("Data Fault Status Register: 0x%08x -> %s\n", (unsigned int)dfsr,
+			dfsr_description);
+		kprintf("Data Fault Adress Register: 0x%08x\n", (unsigned int)dfar);
 	}
 
 	if (is_prefetch_abort) {
 		uint32_t    ifsr	     = read_ifsr();
 		uint32_t    ifar	     = read_ifar();
 		const char *ifsr_description = get_fsr_description(ifsr);
-		kprintf("Instruction Fault Status Register: 0x%08x -> %s\n", ifsr,
+		kprintf("Instruction Fault Status Register: 0x%08x -> %s\n", (unsigned int)ifsr,
 			ifsr_description);
-		kprintf("Instruction Fault Adress Register: 0x%08x\n", ifar);
+		kprintf("Instruction Fault Adress Register: 0x%08x\n", (unsigned int)ifar);
 	}
 
 	kprintf("\n>> Registerschnappschuss <<\n");
-	kprintf("R0: 0x%08x  R5: 0x%08x  R10: 0x%08x\n", frame->r0, frame->r5, frame->r10);
-	kprintf("R1: 0x%08x  R6: 0x%08x  R11: 0x%08x\n", frame->r1, frame->r6, frame->r11);
-	kprintf("R2: 0x%08x  R7: 0x%08x  R12: 0x%08x\n", frame->r2, frame->r7, frame->r12);
-	kprintf("R3: 0x%08x  R8: 0x%08x\n", frame->r3, frame->r8);
-	kprintf("R4: 0x%08x  R9: 0x%08x\n", frame->r4, frame->r9);
+	kprintf("R0: 0x%08x  R5: 0x%08x  R10: 0x%08x\n", (unsigned int)frame->r0,
+		(unsigned int)frame->r5, (unsigned int)frame->r10);
+	kprintf("R1: 0x%08x  R6: 0x%08x  R11: 0x%08x\n", (unsigned int)frame->r1,
+		(unsigned int)frame->r6, (unsigned int)frame->r11);
+	kprintf("R2: 0x%08x  R7: 0x%08x  R12: 0x%08x\n", (unsigned int)frame->r2,
+		(unsigned int)frame->r7, (unsigned int)frame->r12);
+	kprintf("R3: 0x%08x  R8: 0x%08x\n", (unsigned int)frame->r3, (unsigned int)frame->r8);
+	kprintf("R4: 0x%08x  R9: 0x%08x\n", (unsigned int)frame->r4, (unsigned int)frame->r9);
 
 	struct mode_regs mode_regs = read_mode_specific_registers();
 
 	kprintf("\n>> Modusspezifische Register <<\n");
-	kprintf("User/System | LR: 0x%08x | SP: 0x%08x | CPSR: ", mode_regs.user_lr,
-		mode_regs.user_sp);
+	kprintf("User/System | LR: 0x%08x | SP: 0x%08x | CPSR: ", (unsigned int)mode_regs.user_lr,
+		(unsigned int)mode_regs.user_sp);
 	print_psr((struct psr){ .r = cpsr });
-	kprintf("\nIRQ         | LR: 0x%08x | SP: 0x%08x | SPSR: ", mode_regs.irq_lr,
-		mode_regs.irq_sp);
+	kprintf("\nIRQ         | LR: 0x%08x | SP: 0x%08x | SPSR: ", (unsigned int)mode_regs.irq_lr,
+		(unsigned int)mode_regs.irq_sp);
 	print_psr((struct psr){ .r = irq_spsr });
-	kprintf("\nAbort       | LR: 0x%08x | SP: 0x%08x | SPSR: ", mode_regs.abort_lr,
-		mode_regs.abort_sp);
+	kprintf("\nAbort       | LR: 0x%08x | SP: 0x%08x | SPSR: ",
+		(unsigned int)mode_regs.abort_lr, (unsigned int)mode_regs.abort_sp);
 	print_psr((struct psr){ .r = abt_spsr });
-	kprintf("\nUndefined   | LR: 0x%08x | SP: 0x%08x | SPSR: ", mode_regs.undefined_lr,
-		mode_regs.undefined_sp);
+	kprintf("\nUndefined   | LR: 0x%08x | SP: 0x%08x | SPSR: ",
+		(unsigned int)mode_regs.undefined_lr, (unsigned int)mode_regs.undefined_sp);
 	print_psr((struct psr){ .r = und_spsr });
-	kprintf("\nSupervisor  | LR: 0x%08x | SP: 0x%08x | SPSR: ", mode_regs.supervisor_lr,
-		mode_regs.supervisor_sp);
+	kprintf("\nSupervisor  | LR: 0x%08x | SP: 0x%08x | SPSR: ",
+		(unsigned int)mode_regs.supervisor_lr, (unsigned int)mode_regs.supervisor_sp);
 	print_psr((struct psr){ .r = svc_spsr });
 	kprintf("\n");
 }
@@ -94,7 +104,7 @@ static void print_psr(struct psr psr)
 
 	const char *mode_name = get_mode_name(psr.d.mode);
 	kprintf(" %8s", mode_name);
-	kprintf(" 0x%08x", psr.r);
+	kprintf(" 0x%08x", (unsigned int)psr.r);
 }
 
 static const char *get_fsr_description(unsigned int fsr)
