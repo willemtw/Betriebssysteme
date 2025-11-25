@@ -11,17 +11,17 @@ enum gpio_func {
 	gpio_output = 0x1,
 };
 
-struct gpio_t {
+struct gpio {
 	unsigned int func[6];
 	unsigned int unused0;
 	unsigned int set[2];
 	unsigned int unused1;
 	unsigned int clr[2];
 };
-static_assert(offsetof(struct gpio_t, func) == 0x00);
-static_assert(offsetof(struct gpio_t, set) == 0x1C);
-static_assert(offsetof(struct gpio_t, clr) == 0x28);
+static_assert(offsetof(struct gpio, func) == 0x00);
+static_assert(offsetof(struct gpio, set) == 0x1C);
+static_assert(offsetof(struct gpio, clr) == 0x28);
 
-#define GPIO ((volatile struct gpio_t *)GPIO_BASE)
+#define GPIO ((volatile struct gpio *)GPIO_BASE)
 
 #endif

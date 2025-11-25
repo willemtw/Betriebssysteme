@@ -13,64 +13,30 @@ _ivt:
   ldr pc, =_irq_handler
   ldr pc, =_fiq_handler
 
-/* TODO:: Leave LR at causing instruction, decrement to following instruction after c handler  */
+.macro exception_trampoline handler, offset
+  sub lr, lr, #\offset
+  push {r0-r12, lr}
+  mov r0, sp
+  bl \handler
+  pop {r0-r12, lr}
+  add lr, lr, #4
+  movs pc, lr
+.endm
 
 _svc_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #4
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_svc
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_svc, 4
 
 _undef_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #4
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_undefined_instruction
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_undefined_instruction, 4
 
 _prefetch_abort_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #4
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_prefetch_abort
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_prefetch_abort, 4
 
 _data_abort_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #8
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_data_abort
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_data_abort, 8
 
 _irq_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #8
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_irq
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_irq, 8
 
 _fiq_handler:
-  /* Decrement LR due to pipelining */
-  sub lr, lr, #8
-  push {r0-r12, lr}
-  mov r0, sp
-  bl handle_fiq
-  pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  exception_trampoline handle_fiq, 8
