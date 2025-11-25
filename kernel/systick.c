@@ -17,6 +17,4 @@ void systick_handle_irq(void)
 	}
 	system_timer_clear_interrupt(TIMER_C1);
 	system_timer_update_compare(TIMER_C1, TIMER_INTERVAL);
-
-	kprintf("!");
 }

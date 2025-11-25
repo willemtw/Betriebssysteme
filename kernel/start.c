@@ -7,6 +7,7 @@
 #include <kernel/systick.h>
 #include <arch/cpu/interrupts.h>
 #include <arch/cpu/registers.h>
+#include <tests/exceptions.h>
 
 static void subprogram [[noreturn]] (void);
 
@@ -18,26 +19,23 @@ void start_kernel [[noreturn]] (void)
 	kprintf("=== Betriebssystem gestartet ===\n");
 	// test_kernel();
 	while (true) {
-		// svc_call(0);
-		kprintf("Mode: %s\n", get_mode_name(read_cpsr().d.mode));
-		asm volatile("svc 1");
 		char c = uart_getc();
 		switch (c) {
 		case 'd':
 			irq_debug = !irq_debug;
 			break;
-		//case 'a':
-		//	do_data_abort();
-		//	break;
-		//case 'p':
-		//	do_prefetch_abort();
-		//	break;
-		//case 's':
-		//	do_supervisor_call();
-		//	break;
-		//case 'u':
-		//	do_undefined_inst();
-		//	break;
+		case 'a':
+			do_data_abort();
+			break;
+		case 'p':
+			do_prefetch_abort();
+			break;
+		case 's':
+			do_supervisor_call();
+			break;
+		case 'u':
+			do_undefined_inst();
+			break;
 		case 'c':
 			register_checker();
 			break;

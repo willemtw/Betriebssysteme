@@ -78,6 +78,7 @@ SRC = \
 	kernel/systick.c \
 	tests/regcheck.c \
 	tests/regcheck_asm.S \
+	tests/exceptions.c \
 	arch/cpu/stack.c \
 	arch/cpu/exceptions/interrupts.c \
 	arch/cpu/registers.c \
