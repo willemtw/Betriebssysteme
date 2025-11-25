@@ -8,9 +8,9 @@ void handle_irq(void *sp)
 {
 	systick_handle_irq();
 	kprintf("!\n");
-  if (irq_debug) {
+	if (irq_debug) {
 		print_exception_infos("Interrupt", false, false, sp);
-  }
+	}
 }
 
 void handle_fiq(void *sp)

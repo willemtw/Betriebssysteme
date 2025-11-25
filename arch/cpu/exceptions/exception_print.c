@@ -26,8 +26,8 @@ static const char      *get_fsr_description(unsigned int fsr);
 static void		print_psr(struct psr psr);
 static struct mode_regs read_mode_specific_registers(void);
 
-void print_exception_infos(const char *exception_name, bool is_data_abort,
-			   bool is_prefetch_abort, void *sp)
+void print_exception_infos(const char *exception_name, bool is_data_abort, bool is_prefetch_abort,
+			   void *sp)
 {
 	struct exception_stack_frame *frame = (struct exception_stack_frame *)sp;
 

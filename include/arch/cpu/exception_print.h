@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-void print_exception_infos(const char *exception_name, bool is_data_abort,
-			   bool is_prefetch_abort, void *sp);
+void print_exception_infos(const char *exception_name, bool is_data_abort, bool is_prefetch_abort,
+			   void *sp);
 
 extern bool irq_debug;
 
