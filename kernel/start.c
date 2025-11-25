@@ -17,7 +17,7 @@ void start_kernel [[noreturn]] (void)
 	systick_init();
 
 	kprintf("=== Betriebssystem gestartet ===\n");
-	// test_kernel();
+	test_kernel();
 	while (true) {
 		char c = uart_getc();
 		switch (c) {
