@@ -72,16 +72,16 @@ BIN_LSG =
 # Hier eure source files hinzufügen
 SRC = \
 	arch/cpu/entry.S \
-	arch/cpu/ivt.S \
-	arch/cpu/regcheck.c \
+	arch/cpu/exceptions/ivt.S \
 	arch/cpu/modes.c \
 	arch/bsp/interrupt_controller.c \
 	kernel/systick.c \
-	arch/cpu/regcheck_asm.S \
+	tests/regcheck.c \
+	tests/regcheck_asm.S \
 	arch/cpu/stack.c \
-	arch/cpu/interrupts.c \
+	arch/cpu/exceptions/interrupts.c \
 	arch/cpu/registers.c \
-	arch/cpu/exception_print.c \
+	arch/cpu/exceptions/exception_print.c \
 	kernel/start.c \
 	kernel/handlers.c \
 	arch/bsp/yellow_led.c \
