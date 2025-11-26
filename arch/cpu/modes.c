@@ -18,6 +18,6 @@ const char *get_mode_name(enum cpu_mode mode)
 	case CPU_MODE_SYS_RAW:
 		return "System";
 	default:
-		return "Unknown";
+		return "Invalid";
 	}
 }
