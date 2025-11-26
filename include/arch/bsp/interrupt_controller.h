@@ -10,6 +10,7 @@ enum irq_id {
 	SYSTEM_TIMER_C1_IRQ = 1,
 	SYSTEM_TIMER_C2_IRQ = 2,
 	SYSTEM_TIMER_C3_IRQ = 3,
+	UART_IRQ	    = 57,
 };
 
 struct interrupt_controller_regs {

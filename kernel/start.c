@@ -14,6 +14,7 @@ static void subprogram [[noreturn]] (void);
 void start_kernel [[noreturn]] (void)
 {
 	setup_interrupts();
+	uart_init();
 	systick_init();
 
 	kprintf("=== Betriebssystem gestartet ===\n");

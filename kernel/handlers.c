@@ -8,6 +8,7 @@
 void handle_irq(void *sp)
 {
 	systick_handle_irq();
+	uart_handle_irq();
 	kprintf("!\n");
 	if (irq_debug) {
 		print_exception_infos("Interrupt", false, false, sp);
@@ -25,30 +26,30 @@ void handle_undefined_instruction(void *sp)
 {
 	print_exception_infos("Undefined Instruction", false, false, sp);
 	uart_putc('\4');
-	while (1) {
-	}
+	while (1)
+		;
 }
 
 void handle_svc(void *sp)
 {
 	print_exception_infos("Supervisor Call", false, false, sp);
 	uart_putc('\4');
-	while (1) {
-	}
+	while (1)
+		;
 }
 
 void handle_prefetch_abort(void *sp)
 {
 	print_exception_infos("Prefetch Abort", false, true, sp);
 	uart_putc('\4');
-	while (1) {
-	}
+	while (1)
+		;
 }
 
 void handle_data_abort(void *sp)
 {
 	print_exception_infos("Data Abort", true, false, sp);
 	uart_putc('\4');
-	while (1) {
-	}
+	while (1)
+		;
 }
