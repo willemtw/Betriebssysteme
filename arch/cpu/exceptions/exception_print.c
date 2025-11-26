@@ -103,7 +103,7 @@ static void print_psr(struct psr psr)
 		psr.d.t ? 'T' : '_');
 
 	const char *mode_name = get_mode_name(psr.d.mode);
-	kprintf(" %8s", mode_name);
+	kprintf(" %10s", mode_name);
 	kprintf(" 0x%08x", (unsigned int)psr.r);
 }
 

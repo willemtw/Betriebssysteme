@@ -76,7 +76,7 @@ uint8_t check_for_unknown_format(const char *format)
 				return 0;
 			}
 		}
-		if (*format >= '0' && *format <= '9') {
+		while (*format >= '0' && *format <= '9') {
 			format++;
 			if (format == 0) {
 				return 0;
@@ -100,6 +100,24 @@ uint8_t check_for_unknown_format(const char *format)
 	return 0;
 }
 
+void parse_width(const char **format, uint32_t *width)
+{
+	char	 buff[2]    = { '0', '0' };
+	uint32_t num_digits = 0;
+
+	while (**format != 0 && **format <= '9' && **format >= '0' && num_digits < 2) {
+		buff[num_digits] = **format;
+		num_digits++;
+		(*format)++;
+	}
+
+	if (num_digits == 0) {
+		return;
+	}
+
+	*width = num_digits == 1 ? buff[0] - '0' : (buff[0] - '0') * 10 + buff[1] - '0';
+}
+
 void kprintf(const char *format, ...)
 {
 	va_list args;
@@ -119,8 +137,9 @@ void kprintf(const char *format, ...)
 			return;
 		}
 
-		char pad   = ' ';
-		int  width = 0;
+		char	 pad   = ' ';
+		uint32_t width = 0;
+
 		if (*format == '0') {
 			pad = '0';
 			format++;
@@ -128,12 +147,11 @@ void kprintf(const char *format, ...)
 				return;
 			}
 		}
-		if (*format >= '0' && *format <= '9') {
-			width = *format - '0';
-			format++;
-			if (*format == 0) {
-				return;
-			}
+
+		parse_width(&format, &width);
+
+		if (*format == 0) {
+			return;
 		}
 
 		switch (*format) {
@@ -143,7 +161,18 @@ void kprintf(const char *format, ...)
 			break;
 		}
 		case 's': {
-			char *str = va_arg(args, char *);
+			char	*str	 = va_arg(args, char *);
+			uint32_t str_len = 0;
+			char	*temp	 = str;
+			while (*temp++) {
+				str_len++;
+			}
+
+			uint32_t padding_needed = str_len >= width ? 0 : (width - str_len);
+			for (uint32_t j = 0; j < padding_needed; j++) {
+				uart_putc(pad);
+			}
+
 			while (*str) {
 				uart_putc(*str++);
 			}
