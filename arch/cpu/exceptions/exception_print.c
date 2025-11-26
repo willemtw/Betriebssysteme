@@ -23,9 +23,10 @@ struct mode_regs {
 };
 
 // Even though they are the same thing on this platform, we will get warnings if we don't
-// cast uint32_t to "unsigned int" all over this file because uint32_t is defined as
+// cast uint32_t to "unsigned int" all over this file, because uint32_t is defined as
 // "long unsigned int" and the format specifier for that type is "%lx" which our kprintf
-// doesn't support.
+// doesn't support (yet).
+// TODO: Remove all these casts once kprintf supports %lx
 static_assert(sizeof(uint32_t) == sizeof(unsigned int));
 
 static const char      *get_fsr_description(unsigned int fsr);
@@ -103,6 +104,8 @@ static void print_psr(struct psr psr)
 		psr.d.t ? 'T' : '_');
 
 	const char *mode_name = get_mode_name(psr.d.mode);
+
+	// Padding changed from provided code because "Supervisor" is 10 chars long
 	kprintf(" %10s", mode_name);
 	kprintf(" 0x%08x", (unsigned int)psr.r);
 }

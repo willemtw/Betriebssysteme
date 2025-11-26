@@ -37,7 +37,6 @@ enum timer_channel {
 	TIMER_C3 = 3,
 };
 
-// static volatile struct system_timer_regs *timer = (struct system_timer_regs *)SYSTEM_TIMER_BASE;
 #define SYSTEM_TIMER ((volatile struct system_timer_regs *)SYSTEM_TIMER_BASE)
 
 void	 system_timer_set_interval(enum timer_channel channel, uint32_t interval_us);

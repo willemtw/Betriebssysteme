@@ -48,8 +48,26 @@ struct uart_irq_bits {
 	};
 };
 
+struct uart_lcrh {
+	union {
+		uint32_t r;
+
+		struct {
+			uint8_t	 brk : 1;
+			uint8_t	 pen : 1;
+			uint8_t	 eps : 1;
+			uint8_t	 stp2 : 1;
+			uint8_t	 fen : 1;
+			uint8_t	 wlen : 2;
+			uint8_t	 sps : 1;
+			uint32_t _reserved : 24;
+		} d;
+	};
+};
+
 static_assert(sizeof(struct uart_fr) == 4);
 static_assert(sizeof(struct uart_irq_bits) == 4);
+static_assert(sizeof(struct uart_lcrh) == 4);
 
 struct uart {
 	uint32_t	     dr;
@@ -59,7 +77,7 @@ struct uart {
 	uint32_t	     ilpr;
 	uint32_t	     ibrd;
 	uint32_t	     fbrd;
-	uint32_t	     lcrh;
+	struct uart_lcrh     lcrh;
 	uint32_t	     cr;
 	uint32_t	     ifls;
 	struct uart_irq_bits imsc;
@@ -71,9 +89,6 @@ struct uart {
 #define UART_BASE (0x7E201000 - 0x3F000000)
 
 #define UART ((volatile struct uart *)UART_BASE)
-
-#define UART_FR_TXFF (1 << 5)
-#define UART_FR_RXFE (1 << 4)
 
 static_assert(offsetof(struct uart, dr) == 0x00);
 static_assert(offsetof(struct uart, fr) == 0x18);

@@ -13,15 +13,20 @@ void do_prefetch_abort(void)
 
 void do_data_abort(void)
 {
-	uint8_t buffer[8];
+	uint8_t buffer[5];
 
-	for (uint8_t *ptr = buffer; ptr < buffer + 8; ptr++) {
-		if ((uint32_t)ptr % 4) {
-			volatile uint32_t *unaligned = (uint32_t *)((uint32_t)ptr);
-			*(unaligned);
-			return;
-		}
+	uint8_t *ptr = buffer;
+
+	// If ptr is aligned, move it over one byte to force misalignment (for a 4-byte read)
+	if ((uint32_t)ptr % 4 == 0) {
+		ptr++;
 	}
+
+	// Paranoid casting so GCC doesn't somehow prevent this
+	volatile uint32_t *misaligned = (uint32_t *)((uint32_t)(ptr));
+
+	// Misaligned read to cause DA
+	(*misaligned);
 }
 
 void do_undefined_inst(void)

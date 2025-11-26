@@ -7,6 +7,8 @@ static inline bool share_register_bank(enum cpu_mode mode1, enum cpu_mode mode2)
 	if (mode1 == mode2) {
 		return true;
 	}
+
+	// SYS and USR share the same registers
 	return (mode1 == CPU_MODE_USR || mode1 == CPU_MODE_SYS) &&
 	       (mode2 == CPU_MODE_USR || mode2 == CPU_MODE_SYS);
 }
@@ -69,12 +71,12 @@ uint32_t read_sp(void)
 
 uint32_t read_lr_mode(enum cpu_mode mode)
 {
-	uint32_t   lr;
-	struct psr cpsr = read_cpsr();
-
-	if (share_register_bank(cpsr.d.mode, mode)) {
+	// Access via VE is UB if normal access is possible
+	if (share_register_bank(read_cpsr().d.mode, mode)) {
 		return read_lr();
 	}
+
+	uint32_t lr;
 
 	switch (mode) {
 	case CPU_MODE_USR:
@@ -105,12 +107,12 @@ uint32_t read_lr_mode(enum cpu_mode mode)
 
 uint32_t read_sp_mode(enum cpu_mode mode)
 {
-	uint32_t   sp;
-	struct psr cpsr = read_cpsr();
-
-	if (share_register_bank(cpsr.d.mode, mode)) {
+	// Access via VE is UB if normal access is possible
+	if (share_register_bank(read_cpsr().d.mode, mode)) {
 		return read_sp();
 	}
+
+	uint32_t sp;
 
 	switch (mode) {
 	case CPU_MODE_USR:
@@ -141,14 +143,19 @@ uint32_t read_sp_mode(enum cpu_mode mode)
 
 struct psr read_spsr_mode(enum cpu_mode mode)
 {
-	struct psr spsr;
 	struct psr cpsr = read_cpsr();
 
-	if (cpsr.d.mode == mode) {
+	struct psr spsr = { 0 };
+
+	// USR doesn't have it's own SPSR and can't read any other SPSR
+	if (cpsr.d.mode == CPU_MODE_USR) {
+		return spsr;
+	}
+
+	if (read_cpsr().d.mode == mode) {
 		return read_spsr();
 	}
 
-	spsr.r = 0;
 	switch (mode) {
 	case CPU_MODE_IRQ:
 		asm volatile("mrs %0, spsr_irq" : "=r"(spsr.r));

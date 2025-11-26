@@ -4,7 +4,6 @@
 #include <arch/cpu/modes.h>
 #include <stdint.h>
 
-// Program Status Register
 struct psr {
 	union {
 		uint32_t r;

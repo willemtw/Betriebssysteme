@@ -22,9 +22,4 @@ struct exception_stack_frame {
 
 void setup_interrupts(void);
 
-static inline void svc_call(uint32_t number)
-{
-	asm volatile("svc %0" : : "i"(number));
-}
-
 #endif // INTERRUPTS_H

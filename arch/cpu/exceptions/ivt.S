@@ -19,8 +19,8 @@ _ivt:
   mov r0, sp
   bl \handler
   pop {r0-r12, lr}
-  add lr, lr, #4
-  movs pc, lr
+  add lr, lr, #4 /* We want to continue at the next instruction */
+  movs pc, lr /* movs performs exception return (restore CPSR, etc) */
 .endm
 
 _svc_handler:
