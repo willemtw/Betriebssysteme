@@ -1,10 +1,10 @@
+#include "arch/cpu/interrupts.h"
 #include <lib/kprintf.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <arch/cpu/registers.h>
 #include <arch/cpu/modes.h>
-#include <arch/cpu/interrupts.h>
 #include <arch/cpu/exception_print.h>
 
 bool irq_debug = false;
@@ -36,9 +36,9 @@ static struct mode_regs read_mode_specific_registers(void);
 void print_exception_infos(const char *exception_name, bool is_data_abort, bool is_prefetch_abort,
 			   void *sp)
 {
-	struct exception_stack_frame *frame = (struct exception_stack_frame *)sp;
+	struct saved_registers *frame = (struct saved_registers *)sp;
 
-	uint32_t exception_source_addr = frame->lr;
+	uint32_t exception_source_addr = frame->pc;
 	uint32_t cpsr		       = read_cpsr().r;
 	uint32_t svc_spsr	       = read_spsr_mode(CPU_MODE_SVC).r;
 	uint32_t irq_spsr	       = read_spsr_mode(CPU_MODE_IRQ).r;

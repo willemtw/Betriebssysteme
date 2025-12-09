@@ -7,12 +7,12 @@ static inline void set_vbar(uint32_t addr)
 	asm volatile("mcr p15, 0, %0, c12, c0, 0" : : "r"(addr));
 }
 
-static inline void enable_irq(void)
+void enable_irq(void)
 {
 	asm volatile("cpsie i");
 }
 
-static inline void disable_irq(void)
+void disable_irq(void)
 {
 	asm volatile("cpsid i");
 }

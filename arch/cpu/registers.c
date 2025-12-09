@@ -27,6 +27,11 @@ struct psr read_spsr(void)
 	return spsr;
 }
 
+void write_spsr(struct psr spsr)
+{
+	asm volatile("msr spsr, %0" : : "r"(spsr.r));
+}
+
 uint32_t read_dfsr(void)
 {
 	uint32_t dfsr;
@@ -176,4 +181,70 @@ struct psr read_spsr_mode(enum cpu_mode mode)
 		break;
 	}
 	return spsr;
+}
+
+void write_lr_mode(enum cpu_mode mode, uint32_t lr)
+{
+	// Access via VE is UB if normal access is possible
+	if (share_register_bank(read_cpsr().d.mode, mode)) {
+		asm volatile("mov lr, %0" : : "r"(lr));
+		return;
+	}
+
+	switch (mode) {
+	case CPU_MODE_USR:
+	case CPU_MODE_SYS:
+		asm volatile("msr lr_usr, %0" : : "r"(lr));
+		break;
+	case CPU_MODE_IRQ:
+		asm volatile("msr lr_irq, %0" : : "r"(lr));
+		break;
+	case CPU_MODE_ABT:
+		asm volatile("msr lr_abt, %0" : : "r"(lr));
+		break;
+	case CPU_MODE_UND:
+		asm volatile("msr lr_und, %0" : : "r"(lr));
+		break;
+	case CPU_MODE_SVC:
+		asm volatile("msr lr_svc, %0" : : "r"(lr));
+		break;
+	case CPU_MODE_FIQ:
+		asm volatile("msr lr_fiq, %0" : : "r"(lr));
+		break;
+	default:
+		break;
+	}
+}
+
+void write_sp_mode(enum cpu_mode mode, uint32_t sp)
+{
+	// Access via VE is UB if normal access is possible
+	if (share_register_bank(read_cpsr().d.mode, mode)) {
+		asm volatile("mov sp, %0" : : "r"(sp));
+		return;
+	}
+
+	switch (mode) {
+	case CPU_MODE_USR:
+	case CPU_MODE_SYS:
+		asm volatile("msr sp_usr, %0" : : "r"(sp));
+		break;
+	case CPU_MODE_IRQ:
+		asm volatile("msr sp_irq, %0" : : "r"(sp));
+		break;
+	case CPU_MODE_ABT:
+		asm volatile("msr sp_abt, %0" : : "r"(sp));
+		break;
+	case CPU_MODE_UND:
+		asm volatile("msr sp_und, %0" : : "r"(sp));
+		break;
+	case CPU_MODE_SVC:
+		asm volatile("msr sp_svc, %0" : : "r"(sp));
+		break;
+	case CPU_MODE_FIQ:
+		asm volatile("msr sp_fiq, %0" : : "r"(sp));
+		break;
+	default:
+		break;
+	}
 }

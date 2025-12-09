@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-struct exception_stack_frame {
+struct saved_registers {
 	uint32_t r0;
 	uint32_t r1;
 	uint32_t r2;
@@ -17,9 +17,11 @@ struct exception_stack_frame {
 	uint32_t r10;
 	uint32_t r11;
 	uint32_t r12;
-	uint32_t lr;
+	uint32_t pc;
 };
 
 void setup_interrupts(void);
+void enable_irq(void);
+void disable_irq(void);
 
 #endif // INTERRUPTS_H

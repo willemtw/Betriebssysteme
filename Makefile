@@ -91,7 +91,9 @@ SRC = \
 	arch/bsp/uart.c \
 	lib/kprintf.c \
 	arch/bsp/gpio.c \
-	arch/bsp/system_timer.c
+	arch/bsp/system_timer.c \
+	kernel/threads/scheduler.c \
+	kernel/threads/threads.S
 
 # Hier separate user source files hinzufügen
 USRC = user/main.c

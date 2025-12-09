@@ -1,8 +1,10 @@
+#include <kernel/threads/scheduler.h>
 #include <arch/bsp/interrupt_controller.h>
 #include <config.h>
-#include "lib/ringbuffer.h"
+#include <lib/ringbuffer.h>
 #include <arch/bsp/uart.h>
 #include <lib/kprintf.h>
+#include <user/main.h>
 
 create_ringbuffer(uart_ringbuffer, UART_INPUT_BUFFER_SIZE);
 
@@ -23,8 +25,11 @@ void uart_handle_irq(void)
 		return;
 	}
 
-	while (!UART->fr.d.rxfe)
-		buff_putc(uart_ringbuffer, UART->dr);
+	while (!UART->fr.d.rxfe) {
+		char c = UART->dr;
+		scheduler_thread_create(main, &c, 1);
+		buff_putc(uart_ringbuffer, c);
+	}
 	uart_clear_irq(UART_RX);
 }
 

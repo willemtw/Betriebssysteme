@@ -1,3 +1,5 @@
+#include "arch/cpu/interrupts.h"
+#include "kernel/threads/scheduler.h"
 #include <kernel/systick.h>
 #include <arch/bsp/interrupt_controller.h>
 #include <lib/kprintf.h>
@@ -10,7 +12,7 @@ void systick_init(void)
 	system_timer_set_interval(SYSTICK_TIMER_CHANNEL, SYSTICK_TIMER_INTERVAL);
 }
 
-void systick_handle_irq(void)
+void systick_handle_irq(struct saved_registers *sp)
 {
 	if (!interrupt_controller_check_pending(SYSTICK_TIMER_IRQ_ID) ||
 	    !system_timer_check_compare(SYSTICK_TIMER_CHANNEL)) {
@@ -18,4 +20,8 @@ void systick_handle_irq(void)
 	}
 	system_timer_clear_interrupt(SYSTICK_TIMER_CHANNEL);
 	system_timer_update_compare(SYSTICK_TIMER_CHANNEL, SYSTICK_TIMER_INTERVAL);
+
+	kprintf("!\n");
+
+	scheduler_tick_from_irq(sp);
 }
