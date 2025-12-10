@@ -10,6 +10,7 @@
 void handle_irq(struct saved_registers *sp)
 {
 	uart_handle_irq();
+
 	if (irq_debug) {
 		print_exception_infos("Interrupt", false, false, sp);
 	}
@@ -26,6 +27,7 @@ void handle_fiq(void *sp)
 void handle_undefined_instruction(void *sp)
 {
 	print_exception_infos("Undefined Instruction", false, false, sp);
+
 	if (read_spsr().d.mode == CPU_MODE_USR) {
 		scheduler_thread_terminate_running_from_irq(sp);
 	} else {
@@ -38,6 +40,7 @@ void handle_undefined_instruction(void *sp)
 void handle_svc(void *sp)
 {
 	(void)sp;
+
 	if (read_spsr().d.mode == CPU_MODE_USR) {
 		scheduler_thread_terminate_running_from_irq(sp);
 	}
@@ -46,6 +49,7 @@ void handle_svc(void *sp)
 void handle_prefetch_abort(void *sp)
 {
 	print_exception_infos("Prefetch Abort", false, true, sp);
+
 	if (read_spsr().d.mode == CPU_MODE_USR) {
 		scheduler_thread_terminate_running_from_irq(sp);
 	} else {
