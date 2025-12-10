@@ -41,9 +41,9 @@ void uart_handle_irq(void)
 		case 'A':
 			do_data_abort();
 			break;
-    case 'U':
-      do_undef();
-      break;
+		case 'U':
+			do_undef();
+			break;
 		default:
 			// Especially this
 			scheduler_thread_create(main, &c, 1);

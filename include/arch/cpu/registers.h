@@ -29,7 +29,7 @@ static_assert(sizeof(struct psr) == 4);
 struct psr read_cpsr(void);
 struct psr read_spsr(void);
 struct psr read_spsr_mode(enum cpu_mode mode);
-void       write_spsr(struct psr spsr);
+void	   write_spsr(struct psr spsr);
 uint32_t   read_dfsr(void);
 uint32_t   read_dfar(void);
 uint32_t   read_ifsr(void);
@@ -38,7 +38,7 @@ uint32_t   read_lr(void);
 uint32_t   read_lr_mode(enum cpu_mode mode);
 uint32_t   read_sp(void);
 uint32_t   read_sp_mode(enum cpu_mode mode);
-void       write_lr_mode(enum cpu_mode mode, uint32_t lr);
-void       write_sp_mode(enum cpu_mode mode, uint32_t sp);
+void	   write_lr_mode(enum cpu_mode mode, uint32_t lr);
+void	   write_sp_mode(enum cpu_mode mode, uint32_t sp);
 
 #endif // REGISTERS_H
