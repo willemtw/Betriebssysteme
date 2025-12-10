@@ -22,6 +22,7 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 		sp -= 8 - (arg_size % 8);
 	}
 	// We passed one more test when using 4-byte aligned stack pointers
+
 	//sp = (uint8_t *)((uint32_t)sp & ~0b11);
 
 	//// Make sure SP is 4-byte aligned after copying argument
