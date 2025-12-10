@@ -93,7 +93,8 @@ SRC = \
 	arch/bsp/gpio.c \
 	arch/bsp/system_timer.c \
 	kernel/threads/scheduler.c \
-	kernel/threads/threads.S
+	kernel/threads/threads.S \
+	kernel/syscalls.c
 
 # Hier separate user source files hinzufügen
 USRC = user/main.c
