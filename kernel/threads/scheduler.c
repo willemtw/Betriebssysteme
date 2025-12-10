@@ -95,6 +95,12 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
 
+  // Round down to multiple of 8
+  // Should be a given because of the _Align(8) attribute
+  // and size of the struct member, but we still had 
+  // alignment issues somehow, so better safe than sorry
+  sp = (uint8_t*)((uint32_t)sp & ~0b111);
+
 	// Make sure SP is 8-byte aligned after copying argument
 	if (arg_size % 8) {
 		sp -= 8 - (arg_size % 8);
