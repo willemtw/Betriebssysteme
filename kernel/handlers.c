@@ -1,3 +1,4 @@
+#include "arch/cpu/modes.h"
 #include <arch/cpu/interrupts.h>
 #include <stdbool.h>
 #include <lib/kprintf.h>
@@ -25,23 +26,44 @@ void handle_fiq(void *sp)
 void handle_undefined_instruction(void *sp)
 {
 	print_exception_infos("Undefined Instruction", false, false, sp);
-	scheduler_thread_terminate_running_from_irq(sp);
+	if (read_spsr().d.mode == CPU_MODE_USR) {
+		scheduler_thread_terminate_running_from_irq(sp);
+	} else {
+		uart_putc('\4');
+		while (1)
+			;
+	}
 }
 
 void handle_svc(void *sp)
 {
 	(void)sp;
-	scheduler_thread_terminate_running_from_irq(sp);
+	if (read_spsr().d.mode == CPU_MODE_USR) {
+		scheduler_thread_terminate_running_from_irq(sp);
+	}
 }
 
 void handle_prefetch_abort(void *sp)
 {
 	print_exception_infos("Prefetch Abort", false, true, sp);
-	scheduler_thread_terminate_running_from_irq(sp);
+	if (read_spsr().d.mode == CPU_MODE_USR) {
+		scheduler_thread_terminate_running_from_irq(sp);
+	} else {
+		uart_putc('\4');
+		while (1)
+			;
+	}
 }
 
 void handle_data_abort(void *sp)
 {
 	print_exception_infos("Data Abort", true, false, sp);
-	scheduler_thread_terminate_running_from_irq(sp);
+
+	if (read_spsr().d.mode == CPU_MODE_USR) {
+		scheduler_thread_terminate_running_from_irq(sp);
+	} else {
+		uart_putc('\4');
+		while (1)
+			;
+	}
 }

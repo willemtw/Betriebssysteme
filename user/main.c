@@ -5,7 +5,7 @@
 
 void main(void *args)
 {
-	// test_user(args);
+	test_user(args);
 	char c = *((char *)args);
 	switch (c) {
 	case 'a':
