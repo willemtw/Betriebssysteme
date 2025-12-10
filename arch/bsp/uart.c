@@ -39,8 +39,11 @@ void uart_handle_irq(void)
 			do_prefetch_abort();
 			break;
 		case 'A':
-			do_undefined_inst();
+			do_data_abort();
 			break;
+    case 'U':
+      do_undefined_inst();
+      break;
 		default:
 			// Especially this
 			scheduler_thread_create(main, &c, 1);
