@@ -49,7 +49,6 @@ struct thread {
 	enum thread_status    status;
 	struct thread_context context;
 	_Alignas(8) uint8_t stack[THREAD_STACK_SIZE];
-	uint8_t sp;
 };
 
 void scheduler_thread_create(void (*func)(void *), const void *arg, size_t arg_size);

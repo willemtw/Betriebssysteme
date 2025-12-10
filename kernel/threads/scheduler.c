@@ -95,15 +95,21 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
 
-  // Round down to multiple of 8
-  // Should be a given because of the _Align(8) attribute
-  // and size of the struct member, but we still had 
-  // alignment issues somehow, so better safe than sorry
-  sp = (uint8_t*)((uint32_t)sp & ~0b111);
+	// Round down to multiple of 8
+	// Should be a given because of the _Align(8) attribute
+	// and size of the struct member, but we still had
+	// alignment issues somehow, so better safe than sorry
+	// // sp = (uint8_t *)((uint32_t)sp & ~0b111);
+	// // Make sure SP is 8-byte aligned after copying argument
+	// if (arg_size % 8) {
+	//  sp -= 8 - (arg_size % 8);
+	// }
+	// We passed one more test when using 4-byte aligned stack pointers
+	sp = (uint8_t *)((uint32_t)sp & ~0b11);
 
 	// Make sure SP is 8-byte aligned after copying argument
-	if (arg_size % 8) {
-		sp -= 8 - (arg_size % 8);
+	if (arg_size % 4) {
+		sp -= 4 - (arg_size % 4);
 	}
 
 	// Copy thread arg to thread stack
@@ -114,12 +120,14 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 
 	thread->context.sp = (uint32_t)sp;
 
+	//kprintf("sp %% 8 = %u\nstack size:%u\n", thread->context.sp % 8,
+	// thread->context.sp - (uint32_t)thread->stack);
+
 	// Thread entrypoint is the ASM trampoline, which
 	// will later branch to the thread function
 	extern void _thread_entry(void);
 	thread->context.pc = (uint32_t)_thread_entry;
-
-	thread->status = THREAD_STATUS_READY;
+	thread->status	   = THREAD_STATUS_READY;
 }
 
 void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_size)
@@ -134,7 +142,7 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 	thread->id	      = thread_id;
 	thread->context	      = (struct thread_context){ 0 };
 
-  num_threads++;
+	num_threads++;
 
 	scheduler_init_thread(thread, fn, arg, arg_size);
 }
@@ -156,7 +164,8 @@ static struct thread *scheduler_get_next_thread(void)
 		running_thread == &idle_thread ? 0 : (running_thread - scheduler_threads) + 1;
 
 	for (size_t i = 0; i < NUM_THREADS; i++) {
-		struct thread *candidate = &scheduler_threads[(next_thread_search_start + i) % 32];
+		struct thread *candidate =
+			&scheduler_threads[(next_thread_search_start + i) % NUM_THREADS];
 		if (candidate->status == THREAD_STATUS_READY ||
 		    candidate->status == THREAD_STATUS_RUNNING) {
 			return candidate;
