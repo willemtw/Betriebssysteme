@@ -22,6 +22,13 @@ void handle_fiq(void *sp)
 	if (irq_debug) {
 		print_exception_infos("Fast Interrupt", false, false, sp);
 	}
+	if (read_spsr().d.mode == CPU_MODE_USR) {
+		scheduler_thread_terminate_running_from_irq(sp);
+	} else {
+		uart_putc('\4');
+		while (1)
+			;
+	}
 }
 
 void handle_undefined_instruction(void *sp)
