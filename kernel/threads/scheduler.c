@@ -95,9 +95,9 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
 
-	// Make sure SP is 4-byte aligned after copying argument
-	if (arg_size % 4) {
-		sp -= 4 - (arg_size % 4);
+	// Make sure SP is 8-byte aligned after copying argument
+	if (arg_size % 8) {
+		sp -= 8 - (arg_size % 8);
 	}
 
 	// Copy thread arg to thread stack
