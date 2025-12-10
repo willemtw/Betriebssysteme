@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-void do_supervisor_call(void)
+void do_svc(void)
 {
 	// If we're in SV mode already, lr will be overwritten by svc
 	asm volatile("svc 1" ::: "lr");
@@ -29,7 +29,7 @@ void do_data_abort(void)
 	(*misaligned);
 }
 
-void do_undefined_inst(void)
+void do_undef(void)
 {
 	asm volatile("udf #0");
 }

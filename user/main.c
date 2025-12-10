@@ -15,10 +15,10 @@ void main(void *args)
 		do_prefetch_abort();
 		return;
 	case 'u':
-		do_undefined_inst();
+		do_undef();
 		return;
 	case 's':
-		do_supervisor_call();
+		do_svc();
 		return;
 	case 'c':
 		register_checker();

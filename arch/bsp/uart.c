@@ -33,7 +33,7 @@ void uart_handle_irq(void)
 		// Please let us put this somewhere else! This sucks here!
 		switch (c) {
 		case 'S':
-			do_supervisor_call();
+			do_svc();
 			break;
 		case 'P':
 			do_prefetch_abort();
@@ -42,7 +42,7 @@ void uart_handle_irq(void)
 			do_data_abort();
 			break;
     case 'U':
-      do_undefined_inst();
+      do_undef();
       break;
 		default:
 			// Especially this
