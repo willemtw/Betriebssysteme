@@ -1,4 +1,4 @@
-#include <kernel/threads/scheduler.h>
+#include <kernel/threading/thread.h>
 
 .section .text
 
@@ -15,14 +15,13 @@ _thread_entry:
   /* Terminate the thread */
   svc 0
 
-.global _thread_run
+.global _thread_run_trampoline
 
 .balign 64
-_thread_run:
+_thread_run_trampoline:
   ldr lr, [r0, #THREAD_CONTEXT_PC]
 
   add r0, r0, #THREAD_CONTEXT_REGS
   ldmia r0, {r0-r12}
   cpsie i
   movs pc, lr
-

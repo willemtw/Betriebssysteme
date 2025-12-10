@@ -1,8 +1,7 @@
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef THREAD_H
+#define THREAD_H
 
 #define THREAD_STACK_SIZE 4096
-#define NUM_THREADS	  32
 
 #define THREAD_CONTEXT_REGS 0
 #define THREAD_CONTEXT_PC   52
@@ -11,7 +10,6 @@
 #define THREAD_CONTEXT_CPSR 64
 
 #ifndef __ASSEMBLER__
-#include <arch/cpu/interrupts.h>
 #include <arch/cpu/registers.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -51,13 +49,13 @@ struct thread {
 	_Alignas(8) uint8_t stack[THREAD_STACK_SIZE];
 };
 
-void scheduler_thread_create(void (*func)(void *), const void *arg, size_t arg_size);
+void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, size_t arg_size);
 
-void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp);
+[[noreturn]] void thread_run(struct thread *thread);
 
-void scheduler_tick_from_irq(struct saved_registers *sp);
+void (*get_current_thread_fn(void))(void *);
 
-[[noreturn]] void scheduler_start(void);
+struct thread_context *get_current_thread_context(void);
 
 // Verify offsets match struct layout
 static_assert(offsetof(struct thread_context, r0) == THREAD_CONTEXT_REGS,
@@ -73,4 +71,4 @@ static_assert(offsetof(struct thread_context, cpsr) == THREAD_CONTEXT_CPSR,
 
 #endif // __ASSEMBLER__
 
-#endif // SCHEDULER_H
+#endif // THREAD_H

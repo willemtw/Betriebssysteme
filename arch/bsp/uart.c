@@ -1,4 +1,4 @@
-#include <kernel/threads/scheduler.h>
+#include <kernel/threading/scheduler.h>
 #include <arch/bsp/interrupt_controller.h>
 #include <config.h>
 #include <lib/ringbuffer.h>

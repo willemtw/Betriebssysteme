@@ -1,4 +1,4 @@
-#include <kernel/threads/scheduler.h>
+#include <kernel/threading/scheduler.h>
 #include <arch/cpu/interrupts.h>
 #include <arch/cpu/registers.h>
 #include <kernel/result.h>
@@ -6,8 +6,10 @@
 
 struct thread  scheduler_threads[NUM_THREADS];
 struct thread *running_thread;
-bool	       is_running  = false;
-uint32_t       num_threads = 0;
+// As long as this is false, we don't try to context-switch.
+// A timer interrupt could theoretically fire before the scheduler has been initialized,
+// and that would break things otherwise.
+bool is_running = false;
 
 struct thread idle_thread;
 
@@ -84,52 +86,6 @@ static enum result find_free_thread_id(size_t *id)
 	return RESULT_OK;
 }
 
-static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), const void *arg,
-				  size_t arg_size)
-{
-	struct psr cpsr = { 0 };
-	cpsr.d.mode	= CPU_MODE_USR;
-
-	thread->fn	     = fn;
-	thread->context.cpsr = cpsr;
-
-	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
-
-	// Round down to multiple of 8
-	// Should be a given because of the _Align(8) attribute
-	// and size of the struct member, but we still had
-	// alignment issues somehow, so better safe than sorry
-	// // sp = (uint8_t *)((uint32_t)sp & ~0b111);
-	// // Make sure SP is 8-byte aligned after copying argument
-	// if (arg_size % 8) {
-	//  sp -= 8 - (arg_size % 8);
-	// }
-	// We passed one more test when using 4-byte aligned stack pointers
-	sp = (uint8_t *)((uint32_t)sp & ~0b11);
-
-	// Make sure SP is 8-byte aligned after copying argument
-	if (arg_size % 4) {
-		sp -= 4 - (arg_size % 4);
-	}
-
-	// Copy thread arg to thread stack
-	for (size_t i = 0; i < arg_size; i++) {
-		sp--;
-		*sp = ((uint8_t *)arg)[arg_size - 1 - i];
-	}
-
-	thread->context.sp = (uint32_t)sp;
-
-	//kprintf("sp %% 8 = %u\nstack size:%u\n", thread->context.sp % 8,
-	// thread->context.sp - (uint32_t)thread->stack);
-
-	// Thread entrypoint is the ASM trampoline, which
-	// will later branch to the thread function
-	extern void _thread_entry(void);
-	thread->context.pc = (uint32_t)_thread_entry;
-	thread->status	   = THREAD_STATUS_READY;
-}
-
 void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_size)
 {
 	size_t thread_id;
@@ -142,9 +98,7 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 	thread->id	      = thread_id;
 	thread->context	      = (struct thread_context){ 0 };
 
-	num_threads++;
-
-	scheduler_init_thread(thread, fn, arg, arg_size);
+	thread_init(thread, fn, arg, arg_size);
 }
 
 void (*get_current_thread_fn(void))(void *)
@@ -199,20 +153,11 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 }
 
 // Runs a thread immediately and yields control to it
-void scheduler_run_thread(struct thread *thread)
+[[noreturn]] void scheduler_run_thread(struct thread *thread)
 {
-	struct thread_context *context = &thread->context;
-
-	write_sp_mode(context->cpsr.d.mode, context->sp);
-	write_lr_mode(context->cpsr.d.mode, context->lr);
-	write_spsr(context->cpsr);
-
 	running_thread = thread;
-	thread->status = THREAD_STATUS_RUNNING;
-	is_running     = true;
 
-	extern void _thread_run(struct thread_context * context);
-	_thread_run(context);
+	thread_run(thread);
 }
 
 // Terminates the currently running thread and uses the exception
@@ -220,7 +165,6 @@ void scheduler_run_thread(struct thread *thread)
 void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp)
 {
 	running_thread->status = THREAD_STATUS_TERMINATED;
-	num_threads--;
 
 	running_thread = scheduler_get_next_thread();
 	scheduler_replace_irq_context(sp, running_thread);
@@ -231,19 +175,16 @@ static void idle_thread_fn(void *arg)
 {
 	(void)arg;
 	while (1) {
-		// TODO: This leads to delays in output/processing
-		// asm volatile("wfi");
-
-		for (volatile size_t i = 0; i < 1000; i++) {
-		}
+		asm volatile("wfi");
 	}
 }
 
 [[noreturn]] void scheduler_start(void)
 {
-	scheduler_init_thread(&idle_thread, idle_thread_fn, NULL, 0);
+	thread_init(&idle_thread, idle_thread_fn, NULL, 0);
 	idle_thread.id = 100;
 
+	is_running = true;
 	scheduler_run_thread(scheduler_get_next_thread());
 
 	while (1)

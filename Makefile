@@ -92,8 +92,9 @@ SRC = \
 	lib/kprintf.c \
 	arch/bsp/gpio.c \
 	arch/bsp/system_timer.c \
-	kernel/threads/scheduler.c \
-	kernel/threads/threads.S \
+	kernel/threading/scheduler.c \
+	kernel/threading/thread.c \
+	kernel/threading/trampolines.S \
 	kernel/syscalls.c
 
 # Hier separate user source files hinzufügen

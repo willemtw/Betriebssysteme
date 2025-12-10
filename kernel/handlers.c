@@ -5,7 +5,7 @@
 #include <arch/cpu/exception_print.h>
 #include <kernel/systick.h>
 #include <arch/bsp/uart.h>
-#include <kernel/threads/scheduler.h>
+#include <kernel/threading/scheduler.h>
 
 void handle_irq(struct saved_registers *sp)
 {

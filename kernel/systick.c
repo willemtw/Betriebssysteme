@@ -1,5 +1,5 @@
 #include "arch/cpu/interrupts.h"
-#include "kernel/threads/scheduler.h"
+#include "kernel/threading/scheduler.h"
 #include <kernel/systick.h>
 #include <arch/bsp/interrupt_controller.h>
 #include <lib/kprintf.h>

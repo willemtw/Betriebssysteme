@@ -1,4 +1,4 @@
-#include <kernel/threads/scheduler.h>
+#include <kernel/threading/scheduler.h>
 #include <lib/kprintf.h>
 #include <arch/bsp/uart.h>
 #include <arch/cpu/exception_print.h>
