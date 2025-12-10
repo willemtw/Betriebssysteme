@@ -5,6 +5,7 @@
 #include <arch/bsp/uart.h>
 #include <lib/kprintf.h>
 #include <user/main.h>
+#include <tests/exceptions.h>
 
 create_ringbuffer(uart_ringbuffer, UART_INPUT_BUFFER_SIZE);
 
@@ -27,8 +28,23 @@ void uart_handle_irq(void)
 
 	while (!UART->fr.d.rxfe) {
 		char c = UART->dr;
-		scheduler_thread_create(main, &c, 1);
 		buff_putc(uart_ringbuffer, c);
+
+		// Please let us put this somewhere else! This sucks here!
+		switch (c) {
+		case 'S':
+			do_supervisor_call();
+			break;
+		case 'P':
+			do_prefetch_abort();
+			break;
+		case 'A':
+			do_undefined_inst();
+			break;
+		default:
+			// Especially this
+			scheduler_thread_create(main, &c, 1);
+		}
 	}
 	uart_clear_irq(UART_RX);
 }
@@ -55,8 +71,7 @@ void uart_clear_irq(enum uart_irq irq)
 
 char uart_getc(void)
 {
-	// We don't have anything better than busy-waiting at this point
-	// TODO: Change once we have some mechanism for sleeping
+	// TODO: Yield syscalls once not all of them need to terminate
 	while (buff_is_empty(uart_ringbuffer))
 		;
 	return buff_getc(uart_ringbuffer);

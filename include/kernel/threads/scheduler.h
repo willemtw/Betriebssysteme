@@ -11,7 +11,6 @@
 #define THREAD_CONTEXT_CPSR 64
 
 #ifndef __ASSEMBLER__
-// C-only content below
 #include <arch/cpu/interrupts.h>
 #include <arch/cpu/registers.h>
 #include <stddef.h>
@@ -52,10 +51,6 @@ struct thread {
 	_Alignas(8) uint8_t stack[THREAD_STACK_SIZE];
 	uint8_t sp;
 };
-
-// extern struct thread scheduler_threads[NUM_THREADS];
-
-// extern size_t running_thread;
 
 void scheduler_thread_create(void (*func)(void *), const void *arg, size_t arg_size);
 

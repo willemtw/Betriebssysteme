@@ -19,13 +19,5 @@ void start_kernel [[noreturn]] (void)
 	kprintf("=== Betriebssystem gestartet ===\n");
 	test_kernel();
 
-	char d = '1';
-	scheduler_thread_create(main, &d, 1);
-	//d = '2';
-	//scheduler_thread_create(main, &d, 1);
-	//d = '3';
-	//scheduler_thread_create(main, &d, 1);
-	//d = '4';
-	//scheduler_thread_create(main, &d, 1);
 	scheduler_start();
 }

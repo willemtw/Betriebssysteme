@@ -1,8 +1,8 @@
-#include "kernel/threads/scheduler.h"
-#include "arch/cpu/interrupts.h"
-#include "arch/cpu/registers.h"
-#include "kernel/result.h"
-#include "lib/kprintf.h"
+#include <kernel/threads/scheduler.h>
+#include <arch/cpu/interrupts.h>
+#include <arch/cpu/registers.h>
+#include <kernel/result.h>
+#include <lib/kprintf.h>
 
 struct thread  scheduler_threads[NUM_THREADS];
 struct thread *running_thread;
@@ -37,6 +37,7 @@ static void scheduler_save_thread_context_from_irq(struct saved_registers *sp,
 		.cpsr = spsr,
 	};
 }
+
 // Will perform the context switch by replacing saved registers/SPSR with the new
 // context and letting the ASM trampoline perform the usual exception return to the new thread
 static void scheduler_replace_irq_context(struct saved_registers *sp, struct thread *next_thread)
@@ -89,7 +90,6 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 	cpsr.d.mode	= CPU_MODE_USR;
 
 	thread->fn	     = fn;
-	thread->status	     = THREAD_STATUS_READY;
 	thread->context.cpsr = cpsr;
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
@@ -111,6 +111,8 @@ static void scheduler_init_thread(struct thread *thread, void (*fn)(void *), con
 	// will later branch to the thread function
 	extern void _thread_entry(void);
 	thread->context.pc = (uint32_t)_thread_entry;
+
+	thread->status = THREAD_STATUS_READY;
 }
 
 void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_size)
@@ -122,12 +124,8 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 	}
 
 	struct thread *thread = &scheduler_threads[thread_id];
-
-	for (size_t i = 0; i < sizeof(struct thread); i++) {
-		((uint8_t *)thread)[i] = 0;
-	}
-
-	thread->id = thread_id;
+	thread->id	      = thread_id;
+	thread->context	      = (struct thread_context){ 0 };
 
 	scheduler_init_thread(thread, fn, arg, arg_size);
 }
@@ -167,9 +165,9 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 
 	struct thread *next_thread = scheduler_get_next_thread();
 
-	//if (next_thread == running_thread) {
-	//	return;
-	//}
+	if (next_thread == running_thread) {
+		return;
+	}
 
 	struct thread_context *context = &running_thread->context;
 
@@ -180,7 +178,6 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	running_thread	       = next_thread;
 
 	scheduler_replace_irq_context(sp, running_thread);
-	// kprintf("Running %i\n", running_thread->id);
 }
 
 // Runs a thread immediately and yields control to it
@@ -191,8 +188,6 @@ void scheduler_run_thread(struct thread *thread)
 	write_sp_mode(context->cpsr.d.mode, context->sp);
 	write_lr_mode(context->cpsr.d.mode, context->lr);
 	write_spsr(context->cpsr);
-
-	// kprintf("Switching to thread with PC=%08x\n", context->pc);
 
 	running_thread = thread;
 	thread->status = THREAD_STATUS_RUNNING;
@@ -207,18 +202,19 @@ void scheduler_run_thread(struct thread *thread)
 void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp)
 {
 	running_thread->status = THREAD_STATUS_TERMINATED;
-	// kprintf("Thread %i exited\n", running_thread->id);
 
 	running_thread = scheduler_get_next_thread();
-	// kprintf("Running %i\n", running_thread->id);
 	scheduler_replace_irq_context(sp, running_thread);
 }
 
 static void idle_thread_fn(void *arg)
 {
+	(void)arg;
 	while (1) {
-		// kprintf("idle\n");
-		for (volatile int i = 0; i < 100000; i++) {
+		// TODO: This leads to delays in output/processing
+		// asm volatile("wfi");
+
+		for (volatile size_t i = 0; i < 1000; i++) {
 		}
 	}
 }

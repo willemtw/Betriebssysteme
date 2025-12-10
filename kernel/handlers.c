@@ -26,35 +26,22 @@ void handle_undefined_instruction(void *sp)
 {
 	print_exception_infos("Undefined Instruction", false, false, sp);
 	scheduler_thread_terminate_running_from_irq(sp);
-	//uart_putc('\4');
-	//while (1)
-	//	;
 }
 
 void handle_svc(void *sp)
 {
 	(void)sp;
 	scheduler_thread_terminate_running_from_irq(sp);
-	// print_exception_infos("Supervisor Call", false, false, sp);
-	//uart_putc('\4');
-	//while (1)
-	//	;
 }
 
 void handle_prefetch_abort(void *sp)
 {
 	print_exception_infos("Prefetch Abort", false, true, sp);
 	scheduler_thread_terminate_running_from_irq(sp);
-	//uart_putc('\4');
-	//while (1)
-	//	;
 }
 
 void handle_data_abort(void *sp)
 {
 	print_exception_infos("Data Abort", true, false, sp);
 	scheduler_thread_terminate_running_from_irq(sp);
-	//uart_putc('\4');
-	//while (1)
-	//	;
 }
