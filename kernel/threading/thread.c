@@ -57,6 +57,7 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 
 	thread->status = THREAD_STATUS_RUNNING;
 
-	extern void _thread_run_trampoline(struct thread_context * context);
+	extern void _thread_run_trampoline(struct thread_context * context)
+		__attribute__((noreturn));
 	_thread_run_trampoline(context);
 }
