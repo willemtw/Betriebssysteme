@@ -3,15 +3,27 @@
 #include <arch/cpu/registers.h>
 #include <kernel/result.h>
 #include <lib/kprintf.h>
+#include <lib/list.h>
+
+struct thread_queue_entry {
+	list_node      node;
+	struct thread *thread;
+};
 
 struct thread  scheduler_threads[NUM_THREADS];
 struct thread *running_thread;
+
 // As long as this is false, we don't try to context-switch.
 // A timer interrupt could theoretically fire before the scheduler has been initialized,
 // and that would break things otherwise.
-bool is_running = false;
+static bool is_running = false;
 
 struct thread idle_thread;
+
+struct thread_queue_entry queue_entries[NUM_THREADS];
+list_create(ready_queue);
+
+#define container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
 
 static void scheduler_save_thread_context_from_irq(struct saved_registers *sp,
 						   struct thread_context  *context)
@@ -99,6 +111,9 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 	thread->context	      = (struct thread_context){ 0 };
 
 	thread_init(thread, fn, arg, arg_size);
+
+	queue_entries[thread_id].thread = thread;
+	list_add_last(ready_queue, &queue_entries[thread_id].node);
 }
 
 void (*get_current_thread_fn(void))(void *)
@@ -111,25 +126,17 @@ struct thread_context *get_current_thread_context(void)
 	return &running_thread->context;
 }
 
-// Round-Robin implementation that falls back to idle
 static struct thread *scheduler_get_next_thread(void)
 {
-	size_t next_thread_search_start =
-		running_thread == &idle_thread ? 0 : (running_thread - scheduler_threads) + 1;
-
-	for (size_t i = 0; i < NUM_THREADS; i++) {
-		struct thread *candidate =
-			&scheduler_threads[(next_thread_search_start + i) % NUM_THREADS];
-		if (candidate->status == THREAD_STATUS_READY ||
-		    candidate->status == THREAD_STATUS_RUNNING) {
-			return candidate;
-		}
+	list_node *node = list_remove_first(ready_queue);
+	if (node == NULL) {
+		return &idle_thread;
 	}
 
-	return &idle_thread;
+	struct thread_queue_entry *entry = container_of(node, struct thread_queue_entry, node);
+	return entry->thread;
 }
 
-// Handles switching threads due to timer interrupts or other exceptions
 void scheduler_tick_from_irq(struct saved_registers *sp)
 {
 	if (!is_running)
@@ -146,8 +153,12 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	scheduler_save_thread_context_from_irq(sp, context);
 
 	running_thread->status = THREAD_STATUS_READY;
-	next_thread->status    = THREAD_STATUS_RUNNING;
-	running_thread	       = next_thread;
+	if (running_thread != &idle_thread) {
+		list_add_last(ready_queue, &queue_entries[running_thread->id].node);
+	}
+
+	next_thread->status = THREAD_STATUS_RUNNING;
+	running_thread	    = next_thread;
 
 	scheduler_replace_irq_context(sp, running_thread);
 }
@@ -160,13 +171,12 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	thread_run(thread);
 }
 
-// Terminates the currently running thread and uses the exception
-// return to enter the next thread.
 void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp)
 {
 	running_thread->status = THREAD_STATUS_TERMINATED;
 
-	running_thread = scheduler_get_next_thread();
+	running_thread	       = scheduler_get_next_thread();
+	running_thread->status = THREAD_STATUS_RUNNING;
 	scheduler_replace_irq_context(sp, running_thread);
 	kprintf("\n");
 }
@@ -176,6 +186,8 @@ static void idle_thread_fn(void *arg)
 	(void)arg;
 	while (1) {
 		asm volatile("wfi");
+		//for (volatile size_t i = 0; i < 10000; i++) {
+		//}
 	}
 }
 

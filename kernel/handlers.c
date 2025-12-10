@@ -15,6 +15,7 @@ void handle_irq(struct saved_registers *sp)
 	if (irq_debug) {
 		print_exception_infos("Interrupt", false, false, sp);
 	}
+
 	systick_handle_irq(sp);
 	enable_irq();
 }
