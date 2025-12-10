@@ -6,7 +6,8 @@
 
 struct thread  scheduler_threads[NUM_THREADS];
 struct thread *running_thread;
-bool	       is_running = false;
+bool	       is_running  = false;
+uint32_t       num_threads = 0;
 
 struct thread idle_thread;
 
@@ -127,6 +128,8 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 	thread->id	      = thread_id;
 	thread->context	      = (struct thread_context){ 0 };
 
+  num_threads++;
+
 	scheduler_init_thread(thread, fn, arg, arg_size);
 }
 
@@ -202,9 +205,11 @@ void scheduler_run_thread(struct thread *thread)
 void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp)
 {
 	running_thread->status = THREAD_STATUS_TERMINATED;
+	num_threads--;
 
 	running_thread = scheduler_get_next_thread();
 	scheduler_replace_irq_context(sp, running_thread);
+	kprintf("\n");
 }
 
 static void idle_thread_fn(void *arg)
