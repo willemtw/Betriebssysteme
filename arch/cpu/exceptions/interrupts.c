@@ -20,5 +20,4 @@ void disable_irq(void)
 void setup_interrupts(void)
 {
 	set_vbar((uint32_t)&_ivt);
-	enable_irq();
 }

@@ -9,16 +9,19 @@
 
 void handle_irq(struct saved_registers *sp)
 {
+	disable_irq();
 	uart_handle_irq();
 
 	if (irq_debug) {
 		print_exception_infos("Interrupt", false, false, sp);
 	}
 	systick_handle_irq(sp);
+	enable_irq();
 }
 
 void handle_fiq(void *sp)
 {
+	disable_irq();
 	if (irq_debug) {
 		print_exception_infos("Fast Interrupt", false, false, sp);
 	}
@@ -29,10 +32,12 @@ void handle_fiq(void *sp)
 		while (1)
 			;
 	}
+	enable_irq();
 }
 
 void handle_undefined_instruction(void *sp)
 {
+	disable_irq();
 	print_exception_infos("Undefined Instruction", false, false, sp);
 
 	if (read_spsr().d.mode == CPU_MODE_USR) {
@@ -42,19 +47,23 @@ void handle_undefined_instruction(void *sp)
 		while (1)
 			;
 	}
+	enable_irq();
 }
 
 void handle_svc(void *sp)
 {
+	disable_irq();
 	(void)sp;
 
 	if (read_spsr().d.mode == CPU_MODE_USR) {
 		scheduler_thread_terminate_running_from_irq(sp);
 	}
+	enable_irq();
 }
 
 void handle_prefetch_abort(void *sp)
 {
+	disable_irq();
 	print_exception_infos("Prefetch Abort", false, true, sp);
 
 	if (read_spsr().d.mode == CPU_MODE_USR) {
@@ -64,10 +73,12 @@ void handle_prefetch_abort(void *sp)
 		while (1)
 			;
 	}
+	enable_irq();
 }
 
 void handle_data_abort(void *sp)
 {
+	disable_irq();
 	print_exception_infos("Data Abort", true, false, sp);
 
 	if (read_spsr().d.mode == CPU_MODE_USR) {
@@ -77,4 +88,5 @@ void handle_data_abort(void *sp)
 		while (1)
 			;
 	}
+	enable_irq();
 }

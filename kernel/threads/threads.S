@@ -9,6 +9,7 @@ _thread_entry:
   bl get_current_thread_fn /* Load thread FN pointer into r0 */
   mov r1, r0
   mov r0, sp
+  cpsie i
   /* Call the thread function*/
   blx r1
   /* Terminate the thread */
@@ -22,6 +23,6 @@ _thread_run:
 
   add r0, r0, #THREAD_CONTEXT_REGS
   ldmia r0, {r0-r12}
-
+  cpsie i
   movs pc, lr
 

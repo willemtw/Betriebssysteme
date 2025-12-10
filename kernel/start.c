@@ -12,9 +12,9 @@
 
 void start_kernel [[noreturn]] (void)
 {
-	setup_interrupts();
 	uart_init();
 	systick_init();
+	setup_interrupts();
 
 	kprintf("=== Betriebssystem gestartet ===\n");
 	test_kernel();
