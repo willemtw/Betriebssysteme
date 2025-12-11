@@ -1,6 +1,7 @@
 #include <kernel/threading/thread.h>
 #include <arch/cpu/registers.h>
 #include <stdint.h>
+#include <string.h>
 
 void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, size_t arg_size)
 {
@@ -12,29 +13,16 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
 
-	// Round down to multiple of 8
-	// Should be a given because of the _Align(8) attribute
-	// and size of the struct member, but we still had
-	// alignment issues somehow, so better safe than sorry
+	// Make space for the argument on the stack
+	sp -= arg_size;
+	// Round down to multiple of 8 because:
+	// - SP needs to be 8-aligned at call sites, required by AAPCS
+	// - We don't know the alignment of the argument, but the maximum
+	//   possible required alignment of a struct on 32-bit ARM is 8,
+	//   so we can't go wrong here.
 	sp = (uint8_t *)((uint32_t)sp & ~0b111);
-	// Make sure SP is 8-byte aligned after copying argument
-	if (arg_size % 8) {
-		sp -= 8 - (arg_size % 8);
-	}
-	// We passed one more test when using 4-byte aligned stack pointers
 
-	//sp = (uint8_t *)((uint32_t)sp & ~0b11);
-
-	//// Make sure SP is 4-byte aligned after copying argument
-	//if (arg_size % 4) {
-	//	sp -= 4 - (arg_size % 4);
-	//}
-
-	// Copy thread arg to thread stack
-	for (size_t i = 0; i < arg_size; i++) {
-		sp--;
-		*sp = ((uint8_t *)arg)[arg_size - 1 - i];
-	}
+	memcpy((uint8_t *)sp, arg, arg_size);
 
 	thread->context.sp = (uint32_t)sp;
 
