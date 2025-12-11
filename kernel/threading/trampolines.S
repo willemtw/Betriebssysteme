@@ -12,7 +12,6 @@ _thread_entry:
 
   /* SP points to thread arg */
   mov r0, sp
-  cpsie i
   blx r1
 
   /* Terminate the thread */
@@ -25,6 +24,5 @@ _thread_run_trampoline:
   ldr lr, [r0, #THREAD_CONTEXT_PC]
   add r0, r0, #THREAD_CONTEXT_REGS
   ldmia r0, {r0-r12}
-  cpsie i
 
   movs pc, lr
