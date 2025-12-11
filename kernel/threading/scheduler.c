@@ -25,6 +25,31 @@ list_create(ready_queue);
 
 #define container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
 
+static enum result find_free_thread_id(size_t *id)
+{
+	size_t next_thread_id = 0;
+	while (next_thread_id < NUM_THREADS &&
+	       scheduler_threads[next_thread_id].status != THREAD_STATUS_TERMINATED) {
+		next_thread_id++;
+	}
+	if (next_thread_id >= NUM_THREADS) {
+		return RESULT_ERROR;
+	}
+
+	*id = next_thread_id;
+	return RESULT_OK;
+}
+
+void (*get_current_thread_fn(void))(void *)
+{
+	return running_thread->fn;
+}
+
+struct thread_context *get_current_thread_context(void)
+{
+	return &running_thread->context;
+}
+
 static void scheduler_save_thread_context_from_irq(struct saved_registers *sp,
 						   struct thread_context  *context)
 {
@@ -83,21 +108,6 @@ static void scheduler_replace_irq_context(struct saved_registers *sp, struct thr
 	write_spsr(context->cpsr);
 }
 
-static enum result find_free_thread_id(size_t *id)
-{
-	size_t next_thread_id = 0;
-	while (next_thread_id < NUM_THREADS &&
-	       scheduler_threads[next_thread_id].status != THREAD_STATUS_TERMINATED) {
-		next_thread_id++;
-	}
-	if (next_thread_id >= NUM_THREADS) {
-		return RESULT_ERROR;
-	}
-
-	*id = next_thread_id;
-	return RESULT_OK;
-}
-
 void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_size)
 {
 	size_t thread_id;
@@ -114,16 +124,6 @@ void scheduler_thread_create(void (*fn)(void *), const void *arg, size_t arg_siz
 
 	queue_entries[thread_id].thread = thread;
 	list_add_last(ready_queue, &queue_entries[thread_id].node);
-}
-
-void (*get_current_thread_fn(void))(void *)
-{
-	return running_thread->fn;
-}
-
-struct thread_context *get_current_thread_context(void)
-{
-	return &running_thread->context;
 }
 
 static struct thread *scheduler_get_next_thread(void)
@@ -163,7 +163,6 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	scheduler_replace_irq_context(sp, running_thread);
 }
 
-// Runs a thread immediately and yields control to it
 [[noreturn]] void scheduler_run_thread(struct thread *thread)
 {
 	running_thread = thread;
@@ -187,8 +186,8 @@ static void idle_thread_fn(void *arg)
 	while (1) {
 		asm volatile("wfi");
 		// For local testing, busy waiting is a lot more consistent
-		//for (volatile size_t i = 0; i < 10000; i++) {
-		//}
+		// for (volatile size_t i = 0; i < 10000; i++) {
+		// }
 	}
 }
 
@@ -199,7 +198,4 @@ static void idle_thread_fn(void *arg)
 
 	is_running = true;
 	scheduler_run_thread(scheduler_get_next_thread());
-
-	while (1)
-		;
 }

@@ -13,7 +13,6 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 
 	uint8_t *sp = thread->stack + THREAD_STACK_SIZE;
 
-	// Make space for the argument on the stack
 	sp -= arg_size;
 	// Round down to multiple of 8 because:
 	// - SP needs to be 8-aligned at call sites, required by AAPCS
@@ -25,9 +24,6 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 	memcpy((uint8_t *)sp, arg, arg_size);
 
 	thread->context.sp = (uint32_t)sp;
-
-	//kprintf("sp %% 8 = %u\\nstack size:%u\\n", thread->context.sp % 8,
-	// thread->context.sp - (uint32_t)thread->stack);
 
 	// Thread entrypoint is the ASM trampoline, which
 	// will later branch to the thread function
