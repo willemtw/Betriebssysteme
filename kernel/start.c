@@ -34,15 +34,15 @@ void start_kernel [[noreturn]] (void)
 	kprintf("=== Betriebssystem gestartet ===\n");
 	test_kernel();
 
-//	struct test_arg arg = {
-//		.a    = 27,
-//		.b    = 10,
-//		.c    = 0xff,
-//		.name = "This is a name",
-//		.d    = 0b101010101,
-//	};
-//
-//	scheduler_thread_create(arg_test_thread, &arg, sizeof(arg));
-//
+	//	struct test_arg arg = {
+	//		.a    = 27,
+	//		.b    = 10,
+	//		.c    = 0xff,
+	//		.name = "This is a name",
+	//		.d    = 0b101010101,
+	//	};
+	//
+	//	scheduler_thread_create(arg_test_thread, &arg, sizeof(arg));
+	//
 	scheduler_start();
 }
