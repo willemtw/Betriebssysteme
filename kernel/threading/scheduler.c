@@ -142,6 +142,9 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	if (!is_running)
 		return;
 
+	if (running_thread != &idle_thread) {
+		list_add_last(ready_queue, &queue_entries[running_thread->id].node);
+	}
 	struct thread *next_thread = scheduler_get_next_thread();
 
 	if (next_thread == running_thread) {
@@ -153,9 +156,6 @@ void scheduler_tick_from_irq(struct saved_registers *sp)
 	scheduler_save_thread_context_from_irq(sp, context);
 
 	running_thread->status = THREAD_STATUS_READY;
-	if (running_thread != &idle_thread) {
-		list_add_last(ready_queue, &queue_entries[running_thread->id].node);
-	}
 
 	next_thread->status = THREAD_STATUS_RUNNING;
 	running_thread	    = next_thread;
@@ -186,6 +186,7 @@ static void idle_thread_fn(void *arg)
 	(void)arg;
 	while (1) {
 		asm volatile("wfi");
+    // For local testing, busy waiting is a lot more consistent
 		//for (volatile size_t i = 0; i < 10000; i++) {
 		//}
 	}
