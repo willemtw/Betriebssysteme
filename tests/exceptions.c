@@ -3,12 +3,12 @@
 void do_svc(void)
 {
 	// If we're in SV mode already, lr will be overwritten by svc
-	asm volatile("svc 1" ::: "lr");
+	asm volatile("svc 1" ::: "lr", "memory");
 }
 
 void do_prefetch_abort(void)
 {
-	asm volatile("bkpt");
+	asm volatile("bkpt" ::: "memory");
 }
 
 void do_data_abort(void)
@@ -31,5 +31,5 @@ void do_data_abort(void)
 
 void do_undef(void)
 {
-	asm volatile("udf #0");
+	asm volatile("udf #0" ::: "memory");
 }

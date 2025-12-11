@@ -4,26 +4,27 @@
 #include <kernel/result.h>
 #include <lib/kprintf.h>
 #include <lib/list.h>
+#include <kernel/systick.h>
+
+struct thread  scheduler_threads[NUM_THREADS];
+struct thread *running_thread;
 
 struct thread_queue_entry {
 	list_node      node;
 	struct thread *thread;
 };
 
-struct thread  scheduler_threads[NUM_THREADS];
-struct thread *running_thread;
+struct thread_queue_entry queue_entries[NUM_THREADS];
+list_create(ready_queue);
+
+#define container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+
+struct thread idle_thread;
 
 // As long as this is false, we don't try to context-switch.
 // A timer interrupt could theoretically fire before the scheduler has been initialized,
 // and that would break things otherwise.
 static bool is_running = false;
-
-struct thread idle_thread;
-
-struct thread_queue_entry queue_entries[NUM_THREADS];
-list_create(ready_queue);
-
-#define container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
 
 static enum result find_free_thread_id(size_t *id)
 {
@@ -177,6 +178,12 @@ void scheduler_thread_terminate_running_from_irq(struct saved_registers *sp)
 	running_thread	       = scheduler_get_next_thread();
 	running_thread->status = THREAD_STATUS_RUNNING;
 	scheduler_replace_irq_context(sp, running_thread);
+
+	if (running_thread != &idle_thread) {
+		// Give the new thread a full time slice
+		systick_postpone();
+	}
+
 	kprintf("\n");
 }
 
@@ -184,7 +191,7 @@ static void idle_thread_fn(void *arg)
 {
 	(void)arg;
 	while (1) {
-		asm volatile("wfi");
+		asm volatile("wfi" ::: "memory");
 		// For local testing, busy waiting is a lot more consistent
 		// for (volatile size_t i = 0; i < 10000; i++) {
 		// }

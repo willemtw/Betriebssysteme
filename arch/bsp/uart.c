@@ -30,7 +30,6 @@ void uart_handle_irq(void)
 		char c = UART->dr;
 		buff_putc(uart_ringbuffer, c);
 
-		// Please let us put this somewhere else! This sucks here!
 		switch (c) {
 		case 'S':
 			do_svc();
@@ -45,7 +44,6 @@ void uart_handle_irq(void)
 			do_undef();
 			break;
 		default:
-			// Especially this
 			scheduler_thread_create(main, &c, 1);
 		}
 	}
@@ -74,7 +72,7 @@ void uart_clear_irq(enum uart_irq irq)
 
 char uart_getc(void)
 {
-	// TODO: Yield syscalls once not all of them need to terminate
+	// TODO: Yield/wait syscalls once not all of them need to terminate
 	while (buff_is_empty(uart_ringbuffer))
 		;
 	return buff_getc(uart_ringbuffer);

@@ -1,5 +1,5 @@
-#include "arch/cpu/interrupts.h"
-#include "kernel/threading/scheduler.h"
+#include <arch/cpu/interrupts.h>
+#include <kernel/threading/scheduler.h>
 #include <kernel/systick.h>
 #include <arch/bsp/interrupt_controller.h>
 #include <lib/kprintf.h>
@@ -24,4 +24,9 @@ void systick_handle_irq(struct saved_registers *sp)
 	kprintf("!\n");
 
 	scheduler_tick_from_irq(sp);
+}
+
+void systick_postpone(void)
+{
+	system_timer_set_interval(SYSTICK_TIMER_CHANNEL, SYSTICK_TIMER_INTERVAL);
 }

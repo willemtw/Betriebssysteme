@@ -13,4 +13,6 @@ void systick_init(void);
 
 void systick_handle_irq(struct saved_registers *sp);
 
+void systick_postpone(void);
+
 #endif // SYSTICK_H
