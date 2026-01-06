@@ -252,10 +252,10 @@ static void idle_thread_fn(void *arg)
 {
 	(void)arg;
 	while (1) {
-		// asm volatile("wfi" ::: "memory");
+		asm volatile("wfi" ::: "memory");
 		// For local testing, busy waiting is a lot more consistent
-		for (volatile size_t i = 0; i < 10000; i++) {
-		}
+		//for (volatile size_t i = 0; i < 10000; i++) {
+		//}
 	}
 }
 
