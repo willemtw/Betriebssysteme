@@ -42,6 +42,7 @@ void handle_syscall(struct saved_registers *regs)
 	if (svc_num >= NUM_SYSCALLS) {
 		print_exception_infos("Unknown Supervisor Call", false, false, regs);
 		scheduler_thread_terminate_running_from_irq();
+		return;
 	}
 
 	syscall_handler handler = svc_handlers[svc_num];

@@ -11,7 +11,7 @@
 
 [[gnu::weak]] void main(void)
 {
-	kprintf("Default main - user main not found\n");
+	kprintf("Default user main - user main not found\n");
 }
 
 void start_kernel [[noreturn]] (void)
