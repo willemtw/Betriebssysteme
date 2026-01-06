@@ -21,7 +21,7 @@ void systick_handle_irq(void)
 	system_timer_clear_interrupt(SYSTICK_TIMER_CHANNEL);
 	system_timer_update_compare(SYSTICK_TIMER_CHANNEL, SYSTICK_TIMER_INTERVAL);
 
-	kprintf("!\n");
+	// kprintf("!\n");
 
 	scheduler_tick_from_irq();
 }

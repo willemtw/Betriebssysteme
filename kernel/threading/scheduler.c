@@ -197,7 +197,7 @@ void scheduler_thread_terminate_running_from_irq(void)
 
 	scheduler_run_next(scheduler_get_next_thread());
 
-	kprintf("\n");
+	// kprintf("\n");
 }
 
 void scheduler_sleep_running_from_irq(uint32_t cycles)
@@ -208,7 +208,7 @@ void scheduler_sleep_running_from_irq(uint32_t cycles)
 
 	scheduler_run_next(scheduler_get_next_thread());
 
-	kprintf("\n");
+	// kprintf("\n");
 }
 
 void scheduler_wait_running_from_irq(list_node *wait_queue)
@@ -218,7 +218,7 @@ void scheduler_wait_running_from_irq(list_node *wait_queue)
 
 	scheduler_run_next(scheduler_get_next_thread());
 
-	kprintf("\n");
+	// kprintf("\n");
 }
 
 void scheduler_prepare_svc_return(uint32_t value)

@@ -32,7 +32,7 @@ void uart_handle_irq(void)
 		char c = UART->dr;
 		// First, we try to wake a thread waiting for a character
 		if (scheduler_notify_one_from_irq(uart_wait_queue, (uint32_t)c) != RESULT_OK) {
-			kprintf("no thread waiting\n");
+			// kprintf("no thread waiting\n");
 			// If no thread was waiting, store the char in the ringbuffer
 			buff_putc(uart_ringbuffer, c);
 		}

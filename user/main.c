@@ -1,10 +1,5 @@
-#include <arch/bsp/uart.h>
-#include <config.h>
-#include <tests/regcheck.h>
-#include <tests/exceptions.h>
 #include <config.h>
 #include <user/syscalls.h>
-#include <lib/kprintf.h>
 
 void worker_thread(void *args)
 {
