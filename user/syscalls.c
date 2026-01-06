@@ -71,6 +71,11 @@ void syscall_sleep(uint32_t cycles)
 	syscall1(SYSCALL_SLEEP, cycles);
 }
 
+void syscall_kernel_exit(void)
+{
+	syscall0(SYSCALL_KERNEL_EXIT);
+}
+
 void syscall_undefined(void)
 {
 	syscall0(SYSCALL_UNDEFINED);

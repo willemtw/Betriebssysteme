@@ -6,7 +6,7 @@
 #include <lib/kprintf.h>
 
 syscall_handler svc_handlers[NUM_SYSCALLS] = {
-	sys_exit, sys_create_thread, sys_getc, sys_putc, sys_sleep,
+	sys_exit, sys_create_thread, sys_getc, sys_putc, sys_sleep, sys_kernel_exit,
 };
 
 void sys_exit(struct saved_registers *regs)
@@ -34,6 +34,13 @@ void sys_getc(struct saved_registers *regs)
 void sys_putc(struct saved_registers *regs)
 {
 	uart_putc(regs->r1);
+}
+
+void sys_kernel_exit(struct saved_registers *regs)
+{
+	(void)regs;
+	register uint32_t r0 asm("r0") = 6;
+	asm volatile("svc #0" : "+r"(r0) : : "r1", "r2", "r3", "r4", "lr", "memory");
 }
 
 void handle_syscall(struct saved_registers *regs)
