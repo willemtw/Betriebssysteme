@@ -98,7 +98,9 @@ SRC = \
 	kernel/syscalls.c
 
 # Hier separate user source files hinzufügen
-USRC = user/main.c
+USRC = \
+	user/main.c \
+	user/syscalls.c
 
 # Hier können eigene GCC flags mit angegeben werden.
 # Die vorgegebenen Flags können weiter unten gefunden werden unter

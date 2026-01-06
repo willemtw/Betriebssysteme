@@ -12,7 +12,7 @@ void systick_init(void)
 	system_timer_set_interval(SYSTICK_TIMER_CHANNEL, SYSTICK_TIMER_INTERVAL);
 }
 
-void systick_handle_irq(struct saved_registers *sp)
+void systick_handle_irq(void)
 {
 	if (!interrupt_controller_check_pending(SYSTICK_TIMER_IRQ_ID) ||
 	    !system_timer_check_compare(SYSTICK_TIMER_CHANNEL)) {
@@ -23,7 +23,7 @@ void systick_handle_irq(struct saved_registers *sp)
 
 	kprintf("!\n");
 
-	scheduler_tick_from_irq(sp);
+	scheduler_tick_from_irq();
 }
 
 void systick_postpone(void)

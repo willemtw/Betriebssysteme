@@ -96,6 +96,7 @@ static_assert(offsetof(struct uart, cr) == 0x30);
 
 void uart_putc(char c);
 char uart_getc(void);
+void uart_user_getc(void);
 void uart_puts(const char *str);
 
 void uart_enable_irq(enum uart_irq irq);

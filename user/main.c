@@ -2,31 +2,38 @@
 #include <config.h>
 #include <tests/regcheck.h>
 #include <tests/exceptions.h>
+#include <config.h>
+#include <user/syscalls.h>
+#include <lib/kprintf.h>
 
-void main(void *args)
+void worker_thread(void *args)
 {
 	test_user(args);
 	char c = *((char *)args);
-	switch (c) {
-	case 'a':
-		do_data_abort();
-		return;
-	case 'p':
-		do_prefetch_abort();
-		return;
-	case 'u':
-		do_undef();
-		return;
-	case 's':
-		do_svc();
-		return;
-	case 'c':
-		register_checker();
+	if (c == 's') {
+		syscall_undefined();
+	}
+	if (c == 'i') {
 		return;
 	}
-	for (unsigned int n = 0; n < PRINT_COUNT; n++) {
-		for (volatile unsigned int i = 0; i < BUSY_WAIT_COUNTER; i++) {
+	for (unsigned int i = 0; i < PRINT_COUNT; i++) {
+		syscall_putc(c);
+		if (c >= 'A' && c <= 'Z') {
+			for (volatile unsigned int j = 0;
+			     j < BUSY_WAIT_COUNTER * ((unsigned int)c - 'A'); j++)
+				;
+		} else if (c >= 'a' && c <= 'z') {
+			syscall_sleep((unsigned int)c - 'a');
+		} else {
+			syscall_sleep(1);
 		}
-		uart_putc(c);
+	}
+}
+void main(void)
+{
+	test_user_main();
+	while (true) {
+		char c = syscall_getc();
+		syscall_create_thread(worker_thread, &c, sizeof(c));
 	}
 }

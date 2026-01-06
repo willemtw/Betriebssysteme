@@ -6,7 +6,9 @@
 #include <lib/kprintf.h>
 #include <user/main.h>
 #include <tests/exceptions.h>
+#include <lib/list.h>
 
+list_create(uart_wait_queue);
 create_ringbuffer(uart_ringbuffer, UART_INPUT_BUFFER_SIZE);
 
 void uart_init(void)
@@ -28,23 +30,11 @@ void uart_handle_irq(void)
 
 	while (!UART->fr.d.rxfe) {
 		char c = UART->dr;
-		buff_putc(uart_ringbuffer, c);
-
-		switch (c) {
-		case 'S':
-			do_svc();
-			break;
-		case 'P':
-			do_prefetch_abort();
-			break;
-		case 'A':
-			do_data_abort();
-			break;
-		case 'U':
-			do_undef();
-			break;
-		default:
-			scheduler_thread_create(main, &c, 1);
+		// First, we try to wake a thread waiting for a character
+		if (scheduler_notify_one_from_irq(uart_wait_queue, (uint32_t)c) != RESULT_OK) {
+			kprintf("no thread waiting\n");
+			// If no thread was waiting, store the char in the ringbuffer
+			buff_putc(uart_ringbuffer, c);
 		}
 	}
 	uart_clear_irq(UART_RX);
@@ -76,6 +66,16 @@ char uart_getc(void)
 	while (buff_is_empty(uart_ringbuffer))
 		;
 	return buff_getc(uart_ringbuffer);
+}
+
+void uart_user_getc(void)
+{
+	if (buff_is_empty(uart_ringbuffer)) {
+		scheduler_wait_running_from_irq(uart_wait_queue);
+		return;
+	}
+
+	scheduler_prepare_svc_return(buff_getc(uart_ringbuffer));
 }
 
 void uart_putc(char c)

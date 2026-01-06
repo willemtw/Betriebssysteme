@@ -8,7 +8,11 @@
 #include <arch/cpu/interrupts.h>
 #include <arch/cpu/registers.h>
 #include <tests/exceptions.h>
-#include <user/main.h>
+
+[[gnu::weak]] void main(void)
+{
+	kprintf("Default main - user main not found\n");
+}
 
 void start_kernel [[noreturn]] (void)
 {
@@ -19,5 +23,6 @@ void start_kernel [[noreturn]] (void)
 	kprintf("=== Betriebssystem gestartet ===\n");
 	test_kernel();
 
+	scheduler_thread_create((void (*)(void *))main, NULL, 0);
 	scheduler_start();
 }

@@ -13,12 +13,14 @@
 #include <arch/cpu/registers.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <lib/list.h>
 
 enum thread_status {
 	THREAD_STATUS_TERMINATED = 0,
 	THREAD_STATUS_READY,
 	THREAD_STATUS_RUNNING,
 	THREAD_STATUS_WAITING,
+	THREAD_STATUS_SLEEPING,
 };
 
 struct thread_context {
@@ -46,10 +48,14 @@ struct thread {
 	void (*fn)(void *arg);
 	enum thread_status    status;
 	struct thread_context context;
+	uint32_t	      sleep_counter; // Cycles this thread wants to sleep
+	list_node	      queue;
 	_Alignas(8) uint8_t stack[THREAD_STACK_SIZE];
 };
 
 void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, size_t arg_size);
+
+struct thread *thread_from_queue(list_node *node);
 
 [[noreturn]] void thread_run(struct thread *thread);
 

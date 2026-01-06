@@ -2,6 +2,7 @@
 #include <arch/cpu/registers.h>
 #include <stdint.h>
 #include <string.h>
+#include <lib/macros.h>
 
 void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, size_t arg_size)
 {
@@ -30,6 +31,13 @@ void thread_init(struct thread *thread, void (*fn)(void *), const void *arg, siz
 	extern void _thread_entry(void);
 	thread->context.pc = (uint32_t)_thread_entry;
 	thread->status	   = THREAD_STATUS_READY;
+}
+
+struct thread *thread_from_queue(list_node *node)
+{
+	if (node == NULL)
+		return NULL;
+	return container_of(node, struct thread, queue);
 }
 
 [[noreturn]] void thread_run(struct thread *thread)

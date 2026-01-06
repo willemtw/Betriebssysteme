@@ -1,7 +1,6 @@
 #ifndef SYSTICK_H
 #define SYSTICK_H
 
-#include "arch/cpu/interrupts.h"
 #include <config.h>
 
 // C0/C2 are reserved for the GPU
@@ -11,7 +10,7 @@
 
 void systick_init(void);
 
-void systick_handle_irq(struct saved_registers *sp);
+void systick_handle_irq(void);
 
 void systick_postpone(void);
 

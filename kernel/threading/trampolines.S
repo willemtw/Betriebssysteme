@@ -15,7 +15,8 @@ _thread_entry:
   blx r1
 
   /* Terminate the thread */
-  svc 0
+  mov r0, #0
+  svc #0
 
 .global _thread_run_trampoline
 
