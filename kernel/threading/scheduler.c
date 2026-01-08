@@ -151,7 +151,9 @@ static void scheduler_update_sleepers(void)
 
 	while (cur != sleep_queue) {
 		struct thread *thread = thread_from_queue(cur);
-		cur		      = cur->next;
+
+		// Advance here because we might be modifying the list while looping
+		cur = cur->next;
 
 		if (thread->sleep_counter == 0) {
 			list_remove(sleep_queue, &thread->queue);
@@ -196,8 +198,6 @@ void scheduler_thread_terminate_running_from_irq(void)
 	running_thread->status = THREAD_STATUS_TERMINATED;
 
 	scheduler_run_next(scheduler_get_next_thread());
-
-	// kprintf("\n");
 }
 
 void scheduler_sleep_running_from_irq(uint32_t cycles)
@@ -207,8 +207,6 @@ void scheduler_sleep_running_from_irq(uint32_t cycles)
 	list_add_last(sleep_queue, &running_thread->queue);
 
 	scheduler_run_next(scheduler_get_next_thread());
-
-	// kprintf("\n");
 }
 
 void scheduler_wait_running_from_irq(list_node *wait_queue)
@@ -217,8 +215,6 @@ void scheduler_wait_running_from_irq(list_node *wait_queue)
 	list_add_last(wait_queue, &running_thread->queue);
 
 	scheduler_run_next(scheduler_get_next_thread());
-
-	// kprintf("\n");
 }
 
 void scheduler_prepare_svc_return(uint32_t value)
@@ -252,10 +248,7 @@ static void idle_thread_fn(void *arg)
 {
 	(void)arg;
 	while (1) {
-		// asm volatile("wfi" ::: "memory");
-		// For local testing, busy waiting is a lot more consistent
-		for (volatile size_t i = 0; i < 10000; i++) {
-		}
+		asm volatile("wfi" ::: "memory");
 	}
 }
 
